@@ -1,0 +1,37 @@
+services:
+  elasticsearch:
+    ports:
+      - "9200:9200"
+    container_name: es-container
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.1
+    environment:
+      - "discovery.type=single-node"
+      - "xpack.security.enabled=false"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9200" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  chainsimulator:
+    container_name: chainsimulator
+    image: multiversx/chainsimulator:v1.8.4-barnard-test2
+    command: ["--node-override-config", "./overridable-config.toml"]
+    volumes:
+      - ./overridable-config.toml:/multiversx/overridable-config.toml
+    depends_on:
+      - elasticsearch
+    environment:
+      ELASTIC_SEARCH_URL: 'http://localhost:9200'
+    ports:
+      - "8085:8085"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8085/simulator/observers" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5

@@ -1,0 +1,21 @@
+{
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "rootDir": "../../",
+  "testEnvironment": "node",
+  "testSequencer": "<rootDir>/src/test/chain-simulator/utils/testSequencer.js",
+  "testRegex": ".cs-e2e.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "modulePaths": [
+    "<rootDir>"
+  ],
+  "collectCoverageFrom": [
+    "./src/**/*.(t|j)s"
+  ],
+  "testTimeout": 180000
+}

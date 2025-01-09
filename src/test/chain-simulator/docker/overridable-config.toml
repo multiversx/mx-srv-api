@@ -1,0 +1,8 @@
+OverridableConfigTomlValues = [
+    { File = "external.toml", Path = "ElasticSearchConnector.Enabled", Value = true },
+    { File = "external.toml", Path = "ElasticSearchConnector.URL", Value = "http://elasticsearch:9200" },
+    { File = "enableEpochs.toml", Path = "EnableEpochs.StakeLimitsEnableEpoch", Value = 1000000 },
+    { File = "systemSmartContractsConfig.toml", Path = "ESDTSystemSCConfig.BaseIssuingCost", Value = "50000000000000000" },  # (0.05 EGLD)
+    { File = "config.toml", Path = "Debug.Process.Enabled", Value = false },
+    { File = "config.toml", Path = "WebServerAntiflood.WebServerAntifloodEnabled", Value = false}
+]

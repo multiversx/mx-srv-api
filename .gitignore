@@ -42,3 +42,6 @@ lerna-debug.log*
 /src/plugins
 
 .env
+
+# CS Environment variables
+src/test/chain-simulator/config/.env

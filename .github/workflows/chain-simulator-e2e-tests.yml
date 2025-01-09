@@ -1,0 +1,62 @@
+name: Chain simulator e2e tests workflow
+
+on:
+  pull_request:
+
+jobs:
+  test-chainsimulator-e2e:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Build and start chain simulator
+        run: npm run start-chain-simulator
+
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for services to be healthy..."
+          docker ps
+          docker logs chainsimulator
+          sleep 20 # Wait for 20 seconds to ensure services are up
+
+      - name: Print docker containers
+        run: docker ps
+
+      - name: Start API Docker containers
+        run: |
+          cd .
+          docker compose up -d
+
+      - name: Wait for API docker containers to start
+        run: |
+          sleep 20
+          docker ps
+
+      - run: npm ci
+      - run: npm run init
+
+      - name: Start API
+        run: |
+          npm run start:mainnet:e2e &
+          sleep 10 # Wait a little more to ensure the API is fully up
+      
+      - name: Prepare Test Data
+        run: npm run prepare:test-data
+
+      - name: Run e2e tests
+        run: npm run test:cs-e2e
+
+      - name: Stop API after tests
+        run: |
+          echo "Stopping the API..."
+          kill $(lsof -t -i:3001)

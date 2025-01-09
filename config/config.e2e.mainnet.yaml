@@ -2,9 +2,51 @@ network: 'mainnet'
 metaChainShardId: 4294967295
 api:
   public: true
+  publicPort: 3001
   private: true
-  graphql: true
+  privatePort: 4001
+  websocket: true
+cron:
+  cacheWarmer: true
+  fastWarm: false
+  queueWorker: true
+  elasticUpdater: false
+flags:
+  useRequestCaching: true
+  useKeepAliveAgent: true
+  useTracing: false
+  useRequestLogging: false
+  useVmQueryTracing: false
+  processNfts: true
+  collectionPropertiesFromGateway: false
 features:
+  eventsNotifier:
+    enabled: false
+    port: 5674
+    url: 'amqp://guest:guest@127.0.0.1:5672'
+    exchange: 'all_events'
+    queue: 'api-process-logs-and-events'
+  guestCaching:
+    enabled: false
+    hitsThreshold: 100
+    ttl: 12
+  transactionPool:
+    enabled: true
+  transactionPoolWarmer:
+    enabled: true
+    cronExpression: '*/5 * * * * *'
+    ttlInSeconds: 60
+  updateCollectionExtraDetails:
+    enabled: false
+  updateAccountExtraDetails:
+    enabled: false
+    transfersLast24hUrl: 'https://tools.multiversx.com/growth-api/explorer/widgets/most-used/applications'
+  marketplace:
+    enabled: false
+    serviceUrl: 'https://nfts-graph.multiversx.com/graphql'
+  exchange:
+    enabled: false
+    serviceUrl: 'https://graph.xexchange.com/graphql'
   dataApi:
     enabled: false
     serviceUrl: 'https://data-api.multiversx.com'
@@ -13,35 +55,93 @@ features:
     maxExpirySeconds: 86400
     acceptedOrigins:
       - ''
+    admins:
+      - ''
+    jwtSecret: ''
+  stakingV4:
+    enabled: false
+    cronExpression: '*/5 * * * * *'
+    activationEpoch: 1391
+  nodeEpochsLeft:
+    enabled: false
+  transactionProcessor:
+    enabled: false
+    maxLookBehind: 1000
+  transactionCompleted:
+    enabled: false
+    maxLookBehind: 1000
+    logLevel: 'Error'
+  transactionBatch:
+    enabled: false
+    maxLookBehind: 1000
   deepHistory:
     enabled: false
     url: ''
-cron:
-  transactionProcessor: false
-  transactionProcessorMaxLookBehind: 1000
-  cacheWarmer: false
-flags:
-  useRequestCaching: true
-  useKeepAliveAgent: true
-  useTracing: false
-  collectionPropertiesFromGateway: false
+  statusChecker:
+    enabled: false
+    thresholds:
+      tokens: 1000
+      nodes: 5000
+      providers: 150
+      tokenSupplyCount: 100
+      tokenAssets: 100
+      tokenAccounts: 1000
+      tokenTransactions: 1000
+      nodeValidators: 3260
+  nftScamInfo:
+    enabled: false
+  processNfts:
+    enabled: false
+    nftQueueName: 'api-process-nfts'
+    deadLetterQueueName: 'api-process-nfts-dlq'
+  tps:
+    enabled: false
+    maxLookBehindNonces: 100
+  nodesFetch:
+    enabled: false
+    serviceUrl: 'https://api.multiversx.com'
+  tokensFetch:
+    enabled: false
+    serviceUrl: 'https://api.multiversx.com'
+  providersFetch:
+    enabled: false
+    serviceUrl: 'https://api.multiversx.com'
+  assetsFetch:
+    enabled: false
+    assetesUrl: 'https://tools.multiversx.com/assets-cdn'
+image:
+  width: 600
+  height: 600
+  type: 'png'
+aws:
+  s3KeyId: ''
+  s3Secret: ''
+  s3Bucket: 'media.elrond.com'
+  s3Region: ''
 urls:
-  self: 'https://api.multiversx.com'
+  self: 'http://localhost:3001'
   elastic:
-    - 'https://index.multiversx.com'
+    - 'http://localhost:9200'
   gateway:
-    - 'https://gateway.multiversx.com'
+    - 'http://localhost:8085'
   verifier: 'https://play-api.multiversx.com'
   redis: '127.0.0.1'
   rabbitmq: 'amqp://127.0.0.1:5672'
-  providers: 'https://internal-delegation-api.multiversx.com/providers'
+  providers: 'https://delegation-api.multiversx.com/providers'
   delegation: 'https://delegation-api.multiversx.com'
   media: 'https://media.elrond.com'
   nftThumbnails: 'https://media.elrond.com/nfts/thumbnail'
+  tmp: '/tmp'
+  ipfs: 'https://ipfs.io/ipfs'
+  socket: 'socket-api-fra.multiversx.com'
   maiarId: 'https://id-api.multiversx.com'
+indexer:
+  type: 'elastic'
+  maxPagination: 10000
 database:
   enabled: false
   url: 'mongodb://127.0.0.1:27017/api?authSource=admin'
+  type: 'mysql'
   host: 'localhost'
   port: 3306
   username: 'root'
@@ -50,7 +150,8 @@ database:
 caching:
   cacheTtl: 6
   processTtl: 600
-  poolLimit: 10
+  poolLimit: 50
+  cacheDuration: 3
 keepAliveTimeout:
   downstream: 61000
   upstream: 60000
@@ -69,14 +170,6 @@ inflation:
   - 1130177
   - 924690
   - 719203
-security:
-  admins:
-  jwtSecret:
-test:
-  mockKeybases: false
-  mockNodes: false
-  mockTokens: false
-  mockPath: './src/test/mocks/'
-transaction-action:
-  mex:
-    microServiceUrl: 'https://graph.xexchange.com/graphql'
+nftProcess:
+  parallelism: 1
+  maxRetries: 3
