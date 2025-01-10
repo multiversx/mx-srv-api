@@ -46,6 +46,7 @@ export class TransferController {
   @ApiQuery({ name: 'withLogs', description: 'Return logs for transfers. When "withLogs" parameter is applied, complexity estimation is 200', required: false })
   @ApiQuery({ name: 'withOperations', description: 'Return operations for transfers. When "withOperations" parameter is applied, complexity estimation is 200', required: false })
   @ApiQuery({ name: 'withActionTransferValue', description: 'Returns value in USD and EGLD for transferred tokens within the action attribute', required: false })
+  @ApiQuery({ name: 'withRefunds', description: 'Include refund transactions', required: false })
   async getAccountTransfers(
     @Query('from', new DefaultValuePipe(0), ParseIntPipe) from: number,
     @Query('size', new DefaultValuePipe(25), ParseIntPipe) size: number,
@@ -64,13 +65,14 @@ export class TransferController {
     @Query('order', new ParseEnumPipe(SortOrder)) order?: SortOrder,
     @Query('fields', ParseArrayPipe) fields?: string[],
     @Query('relayer', ParseAddressPipe) relayer?: string,
-    @Query('isRelayed', new ParseBoolPipe) isRelayed?: boolean,
-    @Query('withScamInfo', new ParseBoolPipe) withScamInfo?: boolean,
-    @Query('withUsername', new ParseBoolPipe) withUsername?: boolean,
-    @Query('withBlockInfo', new ParseBoolPipe) withBlockInfo?: boolean,
-    @Query('withLogs', new ParseBoolPipe) withLogs?: boolean,
-    @Query('withOperations', new ParseBoolPipe) withOperations?: boolean,
+    @Query('isRelayed', ParseBoolPipe) isRelayed?: boolean,
+    @Query('withScamInfo', ParseBoolPipe) withScamInfo?: boolean,
+    @Query('withUsername', ParseBoolPipe) withUsername?: boolean,
+    @Query('withBlockInfo', ParseBoolPipe) withBlockInfo?: boolean,
+    @Query('withLogs', ParseBoolPipe) withLogs?: boolean,
+    @Query('withOperations', ParseBoolPipe) withOperations?: boolean,
     @Query('withActionTransferValue', ParseBoolPipe) withActionTransferValue?: boolean,
+    @Query('withRefunds', ParseBoolPipe) withRefunds?: boolean,
   ): Promise<Transaction[]> {
     const options = TransactionQueryOptions.applyDefaultOptions(
       size, new TransactionQueryOptions({ withScamInfo, withUsername, withBlockInfo, withLogs, withOperations, withActionTransferValue }),
@@ -92,6 +94,7 @@ export class TransferController {
       relayer,
       isRelayed,
       round,
+      withRefunds,
     }),
       new QueryPagination({ from, size }),
       options,
@@ -115,6 +118,7 @@ export class TransferController {
   @ApiQuery({ name: 'after', description: 'After timestamp', required: false })
   @ApiQuery({ name: 'round', description: 'Round number', required: false })
   @ApiQuery({ name: 'isRelayed', description: 'Returns relayed transactions details', required: false, type: Boolean })
+  @ApiQuery({ name: 'withRefunds', description: 'Include refund transactions', required: false })
   async getAccountTransfersCount(
     @Query('sender', ParseAddressArrayPipe) sender?: string[],
     @Query('receiver', ParseAddressArrayPipe) receiver?: string[],
@@ -128,7 +132,8 @@ export class TransferController {
     @Query('before', ParseIntPipe) before?: number,
     @Query('after', ParseIntPipe) after?: number,
     @Query('round', ParseIntPipe) round?: number,
-    @Query('isRelayed', new ParseBoolPipe) isRelayed?: boolean,
+    @Query('isRelayed', ParseBoolPipe) isRelayed?: boolean,
+    @Query('withRefunds', ParseBoolPipe) withRefunds?: boolean,
   ): Promise<number> {
     return await this.transferService.getTransfersCount(new TransactionFilter({
       senders: sender,
@@ -144,6 +149,7 @@ export class TransferController {
       after,
       isRelayed,
       round,
+      withRefunds,
     }));
   }
 
@@ -162,6 +168,7 @@ export class TransferController {
     @Query('before', ParseIntPipe) before?: number,
     @Query('after', ParseIntPipe) after?: number,
     @Query('round', ParseIntPipe) round?: number,
+    @Query('withRefunds', ParseBoolPipe) withRefunds?: boolean,
   ): Promise<number> {
     return await this.transferService.getTransfersCount(new TransactionFilter({
       senders: sender,
@@ -176,6 +183,7 @@ export class TransferController {
       before,
       after,
       round,
+      withRefunds,
     }));
   }
 }

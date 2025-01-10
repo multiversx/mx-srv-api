@@ -35,6 +35,10 @@ export class AccountQueryOptions {
     if (this.withScrCount && size > 25) {
       throw new BadRequestException('Size must be less than or equal to 25 when withScrCount is set');
     }
+
+    if (this.addresses && this.addresses.length > 25) {
+      throw new BadRequestException('Addresses array must contain 25 or fewer elements');
+    }
   }
 
   isSet(): boolean {
@@ -48,6 +52,7 @@ export class AccountQueryOptions {
       this.tags !== undefined ||
       this.excludeTags !== undefined ||
       this.hasAssets !== undefined ||
-      this.search !== undefined;
+      this.search !== undefined ||
+      this.addresses !== undefined;
   }
 }

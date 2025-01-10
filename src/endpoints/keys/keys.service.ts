@@ -27,6 +27,10 @@ export class KeysService {
         [key]
       );
 
+      if (!encoded || !encoded[0]) {
+        return { remainingUnBondPeriod: 0 };
+      }
+
       let remainingUnBondPeriod = parseInt(Buffer.from(encoded[0], 'base64').toString('ascii'));
 
       if (isNaN(remainingUnBondPeriod)) {

@@ -10,4 +10,5 @@ export class PoolFilter {
   senderShard?: number;
   receiverShard?: number;
   type?: TransactionType;
+  functions?: string[];
 }

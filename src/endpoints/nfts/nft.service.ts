@@ -31,6 +31,7 @@ import { NftRarities } from "./entities/nft.rarities";
 import { SortCollectionNfts } from "../collections/entities/sort.collection.nfts";
 import { TokenAssets } from "src/common/assets/entities/token.assets";
 import { ScamInfo } from "src/common/entities/scam-info.dto";
+import { NftSubType } from "./entities/nft.sub.type";
 
 @Injectable()
 export class NftService {
@@ -217,7 +218,10 @@ export class NftService {
       return undefined;
     }
 
-    if (nft.type.in(NftType.SemiFungibleESDT, NftType.MetaESDT)) {
+    if (nft.type && nft.type.in(
+      NftType.SemiFungibleESDT, NftType.MetaESDT,
+      NftSubType.DynamicSemiFungibleESDT, NftSubType.DynamicMetaESDT
+    )) {
       await this.applySupply(nft);
     }
 

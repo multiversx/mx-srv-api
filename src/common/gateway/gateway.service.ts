@@ -95,6 +95,11 @@ export class GatewayService {
     return result;
   }
 
+  async getAccountsBulk(addresses: string[]): Promise<Account[]> {
+    const result = await this.create('address/bulk', GatewayComponentRequest.addressesBulk, addresses);
+    return result.accounts;
+  }
+
   async getEsdtSupply(identifier: string): Promise<EsdtSupply> {
     const result = await this.get(`network/esdt/supply/${identifier}`, GatewayComponentRequest.esdtSupply);
     return result;

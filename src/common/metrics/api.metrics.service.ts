@@ -1,7 +1,7 @@
 import { MetricsService } from '@multiversx/sdk-nestjs-monitoring';
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { OnEvent } from '@nestjs/event-emitter';
-import { register, Histogram, Gauge } from 'prom-client';
+import { register, Histogram, Gauge, Counter } from 'prom-client';
 import { ApiConfigService } from "src/common/api-config/api.config.service";
 import { GatewayService } from "../gateway/gateway.service";
 import { ProtocolService } from "../protocol/protocol.service";
@@ -19,6 +19,9 @@ export class ApiMetricsService {
   private static lastProcessedNonceGauge: Gauge<string>;
   private static lastProcessedBatchProcessorNonce: Gauge<string>;
   private static lastProcessedTransactionCompletedProcessorNonce: Gauge<string>;
+  private static transactionsCompletedCounter: Counter<string>;
+  private static transactionsPendingResultsCounter: Counter<string>;
+  private static batchUpdatesCounter: Counter<string>;
 
   constructor(
     private readonly apiConfigService: ApiConfigService,
@@ -105,6 +108,27 @@ export class ApiMetricsService {
         labelNames: ['shardId'],
       });
     }
+
+    if (!ApiMetricsService.transactionsCompletedCounter) {
+      ApiMetricsService.transactionsCompletedCounter = new Counter({
+        name: 'websocket_transactions_completed_total',
+        help: 'Total number of completed transactions processed via websocket',
+      });
+    }
+
+    if (!ApiMetricsService.transactionsPendingResultsCounter) {
+      ApiMetricsService.transactionsPendingResultsCounter = new Counter({
+        name: 'websocket_transactions_pending_results_total',
+        help: 'Total number of transactions with pending results processed via websocket',
+      });
+    }
+
+    if (!ApiMetricsService.batchUpdatesCounter) {
+      ApiMetricsService.batchUpdatesCounter = new Counter({
+        name: 'websocket_batch_updates_total',
+        help: 'Total number of batch updates processed via websocket',
+      });
+    }
   }
 
   @OnEvent(MetricsEvents.SetVmQuery)
@@ -156,6 +180,21 @@ export class ApiMetricsService {
   setLastProcessedTransactionCompletedProcessorNonce(payload: LogMetricsEvent) {
     const [shardId, nonce] = payload.args;
     ApiMetricsService.lastProcessedTransactionCompletedProcessorNonce.set({ shardId }, nonce);
+  }
+
+  @OnEvent(MetricsEvents.SetTransactionsCompleted)
+  recordTransactionsCompleted(payload: { transactions: any[] }) {
+    ApiMetricsService.transactionsCompletedCounter.inc(payload.transactions.length);
+  }
+
+  @OnEvent(MetricsEvents.SetTransactionsPendingResults)
+  recordTransactionsPendingResults(payload: { transactions: any[] }) {
+    ApiMetricsService.transactionsPendingResultsCounter.inc(payload.transactions.length);
+  }
+
+  @OnEvent(MetricsEvents.SetBatchUpdated)
+  recordBatchUpdated() {
+    ApiMetricsService.batchUpdatesCounter.inc();
   }
 
   async getMetrics(): Promise<string> {

@@ -146,7 +146,11 @@ export class TransactionsBatchService {
       return transactionBatchItem;
     }
 
-    transaction.hash = result.txHash;
+    if (result.txHash) {
+      transaction.hash = result.txHash;
+    } else {
+      transactionBatchItem.status = BatchTransactionStatus.invalid;
+    }
 
     return transactionBatchItem;
   }

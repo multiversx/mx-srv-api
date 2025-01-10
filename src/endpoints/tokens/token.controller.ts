@@ -59,7 +59,7 @@ export class TokenController {
     @Query('identifiers', ParseArrayPipe) identifiers?: string[],
     @Query('sort', new ParseEnumPipe(TokenSort)) sort?: TokenSort,
     @Query('order', new ParseEnumPipe(SortOrder)) order?: SortOrder,
-    @Query('includeMetaESDT', new ParseBoolPipe) includeMetaESDT?: boolean,
+    @Query('includeMetaESDT', ParseBoolPipe) includeMetaESDT?: boolean,
     @Query('mexPairType', new ParseEnumArrayPipe(MexPairType)) mexPairType?: MexPairType[],
     @Query('priceSource', new ParseEnumPipe(TokenAssetsPriceSourceType)) priceSource?: TokenAssetsPriceSourceType,
   ): Promise<TokenDetailed[]> {
@@ -87,7 +87,7 @@ export class TokenController {
     @Query('type', new ParseEnumPipe(TokenType)) type?: TokenType,
     @Query('identifier', ParseTokenPipe) identifier?: string,
     @Query('identifiers', ParseArrayPipe) identifiers?: string[],
-    @Query('includeMetaESDT', new ParseBoolPipe) includeMetaESDT?: boolean,
+    @Query('includeMetaESDT', ParseBoolPipe) includeMetaESDT?: boolean,
     @Query('mexPairType', new ParseEnumArrayPipe(MexPairType)) mexPairType?: MexPairType[],
     @Query('priceSource', new ParseEnumPipe(TokenAssetsPriceSourceType)) priceSource?: TokenAssetsPriceSourceType,
   ): Promise<number> {
@@ -102,7 +102,7 @@ export class TokenController {
     @Query('type', new ParseEnumPipe(TokenType)) type?: TokenType,
     @Query('identifier', ParseTokenPipe) identifier?: string,
     @Query('identifiers', ParseArrayPipe) identifiers?: string[],
-    @Query('includeMetaESDT', new ParseBoolPipe) includeMetaESDT?: boolean,
+    @Query('includeMetaESDT', ParseBoolPipe) includeMetaESDT?: boolean,
     @Query('mexPairType', new ParseEnumArrayPipe(MexPairType)) mexPairType?: MexPairType[],
     @Query('priceSource', new ParseEnumPipe(TokenAssetsPriceSourceType)) priceSource?: TokenAssetsPriceSourceType,
   ): Promise<number> {
@@ -116,7 +116,7 @@ export class TokenController {
   @ApiNotFoundResponse({ description: 'Token not found' })
   async getToken(
     @Param('identifier', ParseTokenPipe) identifier: string,
-    @Query('denominated', new ParseBoolPipe) denominated?: boolean,
+    @Query('denominated', ParseBoolPipe) denominated?: boolean,
   ): Promise<TokenDetailed> {
     const supplyOptions = { denominated };
     const token = await this.tokenService.getToken(identifier, supplyOptions);
@@ -134,7 +134,7 @@ export class TokenController {
   @ApiNotFoundResponse({ description: 'Token not found' })
   async getTokenSupply(
     @Param('identifier', ParseTokenPipe) identifier: string,
-    @Query('denominated', new ParseBoolPipe) denominated?: boolean,
+    @Query('denominated', ParseBoolPipe) denominated?: boolean,
   ): Promise<TokenSupplyResult> {
     const isToken = await this.tokenService.isToken(identifier);
     if (!isToken) {
@@ -219,6 +219,7 @@ export class TokenController {
   @ApiQuery({ name: 'withUsername', description: 'Integrates username in assets for all addresses present in the transactions', required: false, type: Boolean })
   @ApiQuery({ name: 'withBlockInfo', description: 'Returns sender / receiver block details', required: false, type: Boolean })
   @ApiQuery({ name: 'withActionTransferValue', description: 'Returns value in USD and EGLD for transferred tokens within the action attribute', required: false })
+  @ApiQuery({ name: 'withRelayedScresults', description: 'If set to true, will include smart contract results that resemble relayed transactions', required: false, type: Boolean })
   async getTokenTransactions(
     @Param('identifier', ParseTokenPipe) identifier: string,
     @Query('from', new DefaultValuePipe(0), ParseIntPipe) from: number,
@@ -236,13 +237,14 @@ export class TokenController {
     @Query('round', ParseIntPipe) round?: number,
     @Query('order', new ParseEnumPipe(SortOrder)) order?: SortOrder,
     @Query('fields', ParseArrayPipe) fields?: string[],
-    @Query('withScResults', new ParseBoolPipe) withScResults?: boolean,
-    @Query('withOperations', new ParseBoolPipe) withOperations?: boolean,
-    @Query('withLogs', new ParseBoolPipe) withLogs?: boolean,
-    @Query('withScamInfo', new ParseBoolPipe) withScamInfo?: boolean,
-    @Query('withUsername', new ParseBoolPipe) withUsername?: boolean,
-    @Query('withBlockInfo', new ParseBoolPipe) withBlockInfo?: boolean,
+    @Query('withScResults', ParseBoolPipe) withScResults?: boolean,
+    @Query('withOperations', ParseBoolPipe) withOperations?: boolean,
+    @Query('withLogs', ParseBoolPipe) withLogs?: boolean,
+    @Query('withScamInfo', ParseBoolPipe) withScamInfo?: boolean,
+    @Query('withUsername', ParseBoolPipe) withUsername?: boolean,
+    @Query('withBlockInfo', ParseBoolPipe) withBlockInfo?: boolean,
     @Query('withActionTransferValue', ParseBoolPipe) withActionTransferValue?: boolean,
+    @Query('withRelayedScresults', ParseBoolPipe) withRelayedScresults?: boolean,
   ) {
     const options = TransactionQueryOptions.applyDefaultOptions(size, { withScResults, withOperations, withLogs, withScamInfo, withUsername, withBlockInfo, withActionTransferValue });
 
@@ -251,7 +253,7 @@ export class TokenController {
       throw new NotFoundException('Token not found');
     }
 
-    return await this.transactionService.getTransactions(new TransactionFilter({
+    const transactionFilter = new TransactionFilter({
       sender,
       receivers: receiver,
       token: identifier,
@@ -265,7 +267,12 @@ export class TokenController {
       after,
       order,
       round,
-    }),
+      withRelayedScresults,
+    });
+    TransactionFilter.validate(transactionFilter, size);
+
+    return await this.transactionService.getTransactions(
+      transactionFilter,
       new QueryPagination({ from, size }),
       options,
       undefined,
@@ -287,6 +294,7 @@ export class TokenController {
   @ApiQuery({ name: 'before', description: 'Before timestamp', required: false })
   @ApiQuery({ name: 'after', description: 'After timestamp', required: false })
   @ApiQuery({ name: 'round', description: 'Filter by round number', required: false })
+  @ApiQuery({ name: 'withRelayedScresults', description: 'If set to true, will include smart contract results that resemble relayed transactions', required: false, type: Boolean })
   async getTokenTransactionsCount(
     @Param('identifier', ParseTokenPipe) identifier: string,
     @Query('sender', ParseAddressPipe) sender?: string,
@@ -299,6 +307,7 @@ export class TokenController {
     @Query('before', ParseIntPipe) before?: number,
     @Query('after', ParseIntPipe) after?: number,
     @Query('round', ParseIntPipe) round?: number,
+    @Query('withRelayedScresults', ParseBoolPipe) withRelayedScresults?: boolean,
   ) {
     const isToken = await this.tokenService.isToken(identifier);
     if (!isToken) {
@@ -317,6 +326,7 @@ export class TokenController {
       before,
       after,
       round,
+      withRelayedScresults,
     }));
   }
 
@@ -341,7 +351,7 @@ export class TokenController {
   }
 
   @Get("/tokens/:identifier/roles/:address")
-  @ApiOperation({ summary: 'Token address roles', description: 'Returns roles detalils for a specific address of a given token', deprecated: true })
+  @ApiOperation({ summary: 'Token address roles', description: 'Returns roles details for a specific address of a given token', deprecated: true })
   @ApiOkResponse({ type: TokenRoles })
   @ApiNotFoundResponse({ description: 'Token not found' })
   async getTokenRolesForAddress(
@@ -401,9 +411,9 @@ export class TokenController {
     @Query('round', ParseIntPipe) round?: number,
     @Query('fields', ParseArrayPipe) fields?: string[],
     @Query('order', new ParseEnumPipe(SortOrder)) order?: SortOrder,
-    @Query('withScamInfo', new ParseBoolPipe) withScamInfo?: boolean,
-    @Query('withUsername', new ParseBoolPipe) withUsername?: boolean,
-    @Query('withBlockInfo', new ParseBoolPipe) withBlockInfo?: boolean,
+    @Query('withScamInfo', ParseBoolPipe) withScamInfo?: boolean,
+    @Query('withUsername', ParseBoolPipe) withUsername?: boolean,
+    @Query('withBlockInfo', ParseBoolPipe) withBlockInfo?: boolean,
     @Query('withActionTransferValue', ParseBoolPipe) withActionTransferValue?: boolean,
   ): Promise<Transaction[]> {
     const isToken = await this.tokenService.isToken(identifier);
@@ -435,7 +445,7 @@ export class TokenController {
   }
 
   @Get("/tokens/:identifier/transfers/count")
-  @ApiOperation({ summary: 'Account transfer count', description: 'Return total count of tranfers triggerred by a user account (type = Transaction), as well as transfers triggerred by smart contracts (type = SmartContractResult)' })
+  @ApiOperation({ summary: 'Account transfer count', description: 'Return total count of transfers triggerred by a user account (type = Transaction), as well as transfers triggerred by smart contracts (type = SmartContractResult)' })
   @ApiOkResponse({ type: Number })
   @ApiQuery({ name: 'sender', description: 'Address of the transfer sender', required: false })
   @ApiQuery({ name: 'receiver', description: 'Search by multiple receiver addresses, comma-separated', required: false })

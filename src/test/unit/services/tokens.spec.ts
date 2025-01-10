@@ -134,6 +134,7 @@ describe('Token Service', () => {
           provide: DataApiService,
           useValue: {
             getEsdtTokenPrice: jest.fn(),
+            getEgldPrice: jest.fn(),
           },
         },
         {
@@ -690,6 +691,7 @@ describe('Token Service', () => {
         jest.spyOn(tokenService as any, 'applyMexPairTradesCount').mockImplementation(() => Promise.resolve());
         jest.spyOn(cacheService as any, 'batchApplyAll').mockImplementation(() => Promise.resolve());
         jest.spyOn(dataApiService, 'getEsdtTokenPrice').mockResolvedValue(100);
+        jest.spyOn(dataApiService, 'getEgldPrice').mockResolvedValue(100);
         jest.spyOn(tokenService as any, 'fetchTokenDataFromUrl').mockResolvedValue(100);
         jest.spyOn(esdtService, 'getTokenSupply').mockResolvedValue(mockTokenSupply as EsdtSupply);
 
@@ -710,7 +712,7 @@ describe('Token Service', () => {
           expect(assetsService.getTokenAssets).toHaveBeenCalledWith(mockToken.identifier);
           mockToken.name = mockTokenAssets.name;
         });
-        expect(assetsService.getTokenAssets).toHaveBeenCalledTimes(mockTokens.length);
+        expect(assetsService.getTokenAssets).toHaveBeenCalledTimes(mockTokens.length + 1); // add 1 for EGLD-000000
 
 
         expect((collectionService as any).getNftCollections).toHaveBeenCalledWith(expect.anything(), { type: [TokenType.MetaESDT] });
@@ -763,6 +765,24 @@ describe('Token Service', () => {
           token => token.isLowLiquidity ? 0 : (token.marketCap ?? 0),
           token => token.transactions ?? 0,
         );
+
+        mockTokens.push(new TokenDetailed({
+          identifier: 'EGLD-000000',
+          name: 'EGLD',
+          canPause: false,
+          canUpgrade: false,
+          canWipe: false,
+          price: 100,
+          decimals: 18,
+          isLowLiquidity: false,
+          marketCap: 0,
+          circulatingSupply: '0',
+          supply: '0',
+          assets: {
+            name: 'mockName',
+          } as TokenAssets,
+        }));
+
         expect(result).toEqual(mockTokens);
       });
     });

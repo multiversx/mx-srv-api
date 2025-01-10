@@ -7,6 +7,7 @@ import { PoolFilter } from "src/endpoints/pool/entities/pool.filter";
 import { PoolService } from "src/endpoints/pool/pool.service";
 import { TransactionType } from "src/endpoints/transactions/entities/transaction.type";
 import { ProtocolService } from "../../../common/protocol/protocol.service";
+import { TransactionActionService } from "../../../endpoints/transactions/transaction-action/transaction.action.service";
 
 describe('PoolService', () => {
   let service: PoolService;
@@ -39,6 +40,12 @@ describe('PoolService', () => {
           provide: ApiConfigService,
           useValue: {
             isTransactionPoolEnabled: jest.fn().mockResolvedValue(true),
+          },
+        },
+        {
+          provide: TransactionActionService,
+          useValue: {
+            getTransactionMetadata: jest.fn(),
           },
         },
       ],

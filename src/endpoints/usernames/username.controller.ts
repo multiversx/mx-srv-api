@@ -22,7 +22,7 @@ export class UsernameController {
   async getUsernameDetails(
     @Res() res: any,
     @Param('username') username: string,
-    @Query('withGuardianInfo', new ParseBoolPipe) withGuardianInfo: boolean
+    @Query('withGuardianInfo', ParseBoolPipe) withGuardianInfo: boolean
   ): Promise<AccountDetailed | null> {
     const address = await this.usernameService.getAddressForUsername(username);
     if (!address) {

@@ -106,13 +106,19 @@ export class ProviderService {
 
     const nodesGroupedByProvider: { [key: string]: any[] } = nodes.groupBy(x => x.provider);
 
-    const providersDelegationData: DelegationData[] = await this.getDelegationProviders();
+    const providersDelegationData = await this.getDelegationProviders();
+    if (!Array.isArray(providersDelegationData)) {
+      return providers;
+    }
 
     providers.forEach((element) => {
       const providerAddress = element.provider;
 
       // Delegation details for provider
-      const delegationData: DelegationData | undefined = providersDelegationData.find((providerDelegationInfo: any) => providerDelegationInfo !== null && providerAddress === providerDelegationInfo.contract);
+      const delegationData = providersDelegationData.find((providerDelegationInfo: any) =>
+        providerDelegationInfo !== null && providerAddress === providerDelegationInfo.contract
+      );
+
       if (delegationData) {
         if (delegationData.aprValue) {
           element.apr = parseFloat(delegationData.aprValue.toFixed(2));

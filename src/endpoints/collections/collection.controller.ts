@@ -66,15 +66,15 @@ export class CollectionController {
     @Query('type', new ParseEnumArrayPipe(NftType)) type?: NftType[],
     @Query('subType', new ParseEnumArrayPipe(NftSubType)) subType?: NftSubType[],
     @Query('creator', ParseAddressPipe) creator?: string,
-    @Query('before', new ParseIntPipe) before?: number,
-    @Query('after', new ParseIntPipe) after?: number,
-    @Query('canCreate', new ParseAddressPipe) canCreate?: string,
-    @Query('canBurn', new ParseAddressPipe) canBurn?: string,
-    @Query('canAddQuantity', new ParseAddressPipe) canAddQuantity?: string,
-    @Query('canUpdateAttributes', new ParseAddressPipe) canUpdateAttributes?: string,
-    @Query('canAddUri', new ParseAddressPipe) canAddUri?: string,
-    @Query('canTransferRole', new ParseAddressPipe) canTransferRole?: string,
-    @Query('excludeMetaESDT', new ParseBoolPipe) excludeMetaESDT?: boolean,
+    @Query('before', ParseIntPipe) before?: number,
+    @Query('after', ParseIntPipe) after?: number,
+    @Query('canCreate', ParseAddressPipe) canCreate?: string,
+    @Query('canBurn', ParseAddressPipe) canBurn?: string,
+    @Query('canAddQuantity', ParseAddressPipe) canAddQuantity?: string,
+    @Query('canUpdateAttributes', ParseAddressPipe) canUpdateAttributes?: string,
+    @Query('canAddUri', ParseAddressPipe) canAddUri?: string,
+    @Query('canTransferRole', ParseAddressPipe) canTransferRole?: string,
+    @Query('excludeMetaESDT', ParseBoolPipe) excludeMetaESDT?: boolean,
     @Query('sort', new ParseEnumPipe(SortCollections)) sort?: SortCollections,
     @Query('order', new ParseEnumPipe(SortOrder)) order?: SortOrder,
   ): Promise<NftCollection[]> {
@@ -117,15 +117,15 @@ export class CollectionController {
     @Query('type', new ParseEnumArrayPipe(NftType)) type?: NftType[],
     @Query('subType', new ParseEnumArrayPipe(NftSubType)) subType?: NftSubType[],
     @Query('creator', ParseAddressPipe) creator?: string,
-    @Query('before', new ParseIntPipe) before?: number,
-    @Query('after', new ParseIntPipe) after?: number,
-    @Query('canCreate', new ParseAddressPipe) canCreate?: string,
-    @Query('canBurn', new ParseAddressPipe) canBurn?: string,
-    @Query('canAddQuantity', new ParseAddressPipe) canAddQuantity?: string,
-    @Query('canUpdateAttributes', new ParseAddressPipe) canUpdateAttributes?: string,
-    @Query('canAddUri', new ParseAddressPipe) canAddUri?: string,
-    @Query('canTransferRole', new ParseAddressPipe) canTransferRole?: string,
-    @Query('excludeMetaESDT', new ParseBoolPipe) excludeMetaESDT?: boolean,
+    @Query('before', ParseIntPipe) before?: number,
+    @Query('after', ParseIntPipe) after?: number,
+    @Query('canCreate', ParseAddressPipe) canCreate?: string,
+    @Query('canBurn', ParseAddressPipe) canBurn?: string,
+    @Query('canAddQuantity', ParseAddressPipe) canAddQuantity?: string,
+    @Query('canUpdateAttributes', ParseAddressPipe) canUpdateAttributes?: string,
+    @Query('canAddUri', ParseAddressPipe) canAddUri?: string,
+    @Query('canTransferRole', ParseAddressPipe) canTransferRole?: string,
+    @Query('excludeMetaESDT', ParseBoolPipe) excludeMetaESDT?: boolean,
   ): Promise<number> {
     return await this.collectionService.getNftCollectionCount(new CollectionFilter({
       search,
@@ -149,15 +149,15 @@ export class CollectionController {
     @Query('search') search?: string,
     @Query('type', new ParseEnumArrayPipe(NftType)) type?: NftType[],
     @Query('creator', ParseAddressPipe) creator?: string,
-    @Query('before', new ParseIntPipe) before?: number,
-    @Query('after', new ParseIntPipe) after?: number,
-    @Query('canCreate', new ParseAddressPipe) canCreate?: string,
-    @Query('canBurn', new ParseAddressPipe) canBurn?: string,
-    @Query('canAddQuantity', new ParseAddressPipe) canAddQuantity?: string,
-    @Query('canUpdateAttributes', new ParseAddressPipe) canUpdateAttributes?: string,
-    @Query('canAddUri', new ParseAddressPipe) canAddUri?: string,
-    @Query('canTransferRole', new ParseAddressPipe) canTransferRole?: string,
-    @Query('excludeMetaESDT', new ParseBoolPipe) excludeMetaESDT?: boolean,
+    @Query('before', ParseIntPipe) before?: number,
+    @Query('after', ParseIntPipe) after?: number,
+    @Query('canCreate', ParseAddressPipe) canCreate?: string,
+    @Query('canBurn', ParseAddressPipe) canBurn?: string,
+    @Query('canAddQuantity', ParseAddressPipe) canAddQuantity?: string,
+    @Query('canUpdateAttributes', ParseAddressPipe) canUpdateAttributes?: string,
+    @Query('canAddUri', ParseAddressPipe) canAddUri?: string,
+    @Query('canTransferRole', ParseAddressPipe) canTransferRole?: string,
+    @Query('excludeMetaESDT', ParseBoolPipe) excludeMetaESDT?: boolean,
   ): Promise<number> {
     return await this.collectionService.getNftCollectionCount(new CollectionFilter({
       search,
@@ -235,14 +235,14 @@ export class CollectionController {
     @Query('name') name?: string,
     @Query('tags', ParseArrayPipe) tags?: string[],
     @Query('creator', ParseAddressPipe) creator?: string,
-    @Query('isWhitelistedStorage', new ParseBoolPipe) isWhitelistedStorage?: boolean,
-    @Query('hasUris', new ParseBoolPipe) hasUris?: boolean,
-    @Query('isNsfw', new ParseBoolPipe) isNsfw?: boolean,
-    @Query('traits', new ParseRecordPipe) traits?: Record<string, string>,
-    @Query('nonceBefore', new ParseIntPipe) nonceBefore?: number,
-    @Query('nonceAfter', new ParseIntPipe) nonceAfter?: number,
-    @Query('withOwner', new ParseBoolPipe) withOwner?: boolean,
-    @Query('withSupply', new ParseBoolPipe) withSupply?: boolean,
+    @Query('isWhitelistedStorage', ParseBoolPipe) isWhitelistedStorage?: boolean,
+    @Query('hasUris', ParseBoolPipe) hasUris?: boolean,
+    @Query('isNsfw', ParseBoolPipe) isNsfw?: boolean,
+    @Query('traits', ParseRecordPipe) traits?: Record<string, string>,
+    @Query('nonceBefore', ParseIntPipe) nonceBefore?: number,
+    @Query('nonceAfter', ParseIntPipe) nonceAfter?: number,
+    @Query('withOwner', ParseBoolPipe) withOwner?: boolean,
+    @Query('withSupply', ParseBoolPipe) withSupply?: boolean,
     @Query('sort', new ParseEnumPipe(SortCollectionNfts)) sort?: SortCollectionNfts,
     @Query('order', new ParseEnumPipe(SortOrder)) order?: SortOrder,
   ): Promise<Nft[]> {
@@ -279,11 +279,11 @@ export class CollectionController {
     @Query('name') name?: string,
     @Query('tags', ParseArrayPipe) tags?: string[],
     @Query('creator', ParseAddressPipe) creator?: string,
-    @Query('isWhitelistedStorage', new ParseBoolPipe) isWhitelistedStorage?: boolean,
-    @Query('hasUris', new ParseBoolPipe) hasUris?: boolean,
-    @Query('traits', new ParseRecordPipe) traits?: Record<string, string>,
-    @Query('nonceBefore', new ParseIntPipe) nonceBefore?: number,
-    @Query('nonceAfter', new ParseIntPipe) nonceAfter?: number,
+    @Query('isWhitelistedStorage', ParseBoolPipe) isWhitelistedStorage?: boolean,
+    @Query('hasUris', ParseBoolPipe) hasUris?: boolean,
+    @Query('traits', ParseRecordPipe) traits?: Record<string, string>,
+    @Query('nonceBefore', ParseIntPipe) nonceBefore?: number,
+    @Query('nonceAfter', ParseIntPipe) nonceAfter?: number,
   ): Promise<number> {
     const isCollection = await this.collectionService.isCollection(collection);
     if (!isCollection) {
@@ -336,6 +336,7 @@ export class CollectionController {
   @ApiQuery({ name: 'withLogs', description: 'Return logs for transactions', required: false, type: Boolean })
   @ApiQuery({ name: 'withScamInfo', description: 'Returns scam information', required: false, type: Boolean })
   @ApiQuery({ name: 'withUsername', description: 'Integrates username in assets for all addresses present in the transactions', required: false, type: Boolean })
+  @ApiQuery({ name: 'withRelayedScresults', description: 'If set to true, will include smart contract results that resemble relayed transactions', required: false, type: Boolean })
   async getCollectionTransactions(
     @Param('collection', ParseCollectionPipe) identifier: string,
     @Query('from', new DefaultValuePipe(0), ParseIntPipe) from: number,
@@ -352,11 +353,12 @@ export class CollectionController {
     @Query('after', ParseIntPipe) after?: number,
     @Query('round', ParseIntPipe) round?: number,
     @Query('order', new ParseEnumPipe(SortOrder)) order?: SortOrder,
-    @Query('withScResults', new ParseBoolPipe) withScResults?: boolean,
-    @Query('withOperations', new ParseBoolPipe) withOperations?: boolean,
-    @Query('withLogs', new ParseBoolPipe) withLogs?: boolean,
-    @Query('withScamInfo', new ParseBoolPipe) withScamInfo?: boolean,
-    @Query('withUsername', new ParseBoolPipe) withUsername?: boolean,
+    @Query('withScResults', ParseBoolPipe) withScResults?: boolean,
+    @Query('withOperations', ParseBoolPipe) withOperations?: boolean,
+    @Query('withLogs', ParseBoolPipe) withLogs?: boolean,
+    @Query('withScamInfo', ParseBoolPipe) withScamInfo?: boolean,
+    @Query('withUsername', ParseBoolPipe) withUsername?: boolean,
+    @Query('withRelayedScresults', ParseBoolPipe) withRelayedScresults?: boolean,
   ) {
     const options = TransactionQueryOptions.applyDefaultOptions(size, { withScResults, withOperations, withLogs, withScamInfo, withUsername });
 
@@ -365,7 +367,7 @@ export class CollectionController {
       throw new HttpException('Collection not found', HttpStatus.NOT_FOUND);
     }
 
-    return await this.transactionService.getTransactions(new TransactionFilter({
+    const transactionFilter = new TransactionFilter({
       sender,
       receivers: receiver,
       token: identifier,
@@ -379,7 +381,11 @@ export class CollectionController {
       after,
       order,
       round,
-    }), new QueryPagination({ from, size }), options);
+      withRelayedScresults,
+    });
+    TransactionFilter.validate(transactionFilter, size);
+
+    return await this.transactionService.getTransactions(transactionFilter, new QueryPagination({ from, size }), options);
   }
 
   @Get("/collections/:collection/transactions/count")
@@ -396,6 +402,7 @@ export class CollectionController {
   @ApiQuery({ name: 'before', description: 'Before timestamp', required: false })
   @ApiQuery({ name: 'after', description: 'After timestamp', required: false })
   @ApiQuery({ name: 'round', description: 'Filter by round number', required: false })
+  @ApiQuery({ name: 'withRelayedScresults', description: 'If set to true, will include smart contract results that resemble relayed transactions', required: false, type: Boolean })
   async getCollectionTransactionsCount(
     @Param('collection', ParseCollectionPipe) identifier: string,
     @Query('sender', ParseAddressPipe) sender?: string,
@@ -408,6 +415,7 @@ export class CollectionController {
     @Query('before', ParseIntPipe) before?: number,
     @Query('after', ParseIntPipe) after?: number,
     @Query('round', ParseIntPipe) round?: number,
+    @Query('withRelayedScresults', ParseBoolPipe) withRelayedScresults?: boolean,
   ) {
     const isCollection = await this.collectionService.isCollection(identifier);
     if (!isCollection) {
@@ -426,6 +434,7 @@ export class CollectionController {
       before,
       after,
       round,
+      withRelayedScresults,
     }));
   }
 
@@ -469,11 +478,11 @@ export class CollectionController {
     @Query('after', ParseIntPipe) after?: number,
     @Query('round', ParseIntPipe) round?: number,
     @Query('order', new ParseEnumPipe(SortOrder)) order?: SortOrder,
-    @Query('withScResults', new ParseBoolPipe) withScResults?: boolean,
-    @Query('withOperations', new ParseBoolPipe) withOperations?: boolean,
-    @Query('withLogs', new ParseBoolPipe) withLogs?: boolean,
-    @Query('withScamInfo', new ParseBoolPipe) withScamInfo?: boolean,
-    @Query('withUsername', new ParseBoolPipe) withUsername?: boolean,
+    @Query('withScResults', ParseBoolPipe) withScResults?: boolean,
+    @Query('withOperations', ParseBoolPipe) withOperations?: boolean,
+    @Query('withLogs', ParseBoolPipe) withLogs?: boolean,
+    @Query('withScamInfo', ParseBoolPipe) withScamInfo?: boolean,
+    @Query('withUsername', ParseBoolPipe) withUsername?: boolean,
   ) {
     const options = TransactionQueryOptions.applyDefaultOptions(size, { withScResults, withOperations, withLogs, withScamInfo, withUsername });
 

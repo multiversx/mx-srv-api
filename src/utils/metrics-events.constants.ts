@@ -7,4 +7,7 @@ export enum MetricsEvents {
   SetLastProcessedNonce = "setLastProcessedNonce",
   SetLastProcessedBatchProcessorNonce = "setLastProcessedBatchProcessorNonce",
   SetLastProcessedTransactionCompletedProcessorNonce = "setLastProcessedTransactionCompletedProcessorNonce",
+  SetTransactionsCompleted = "setTransactionsCompleted",
+  SetTransactionsPendingResults = "setTransactionsPendingResults",
+  SetBatchUpdated = "setBatchUpdated",
 }

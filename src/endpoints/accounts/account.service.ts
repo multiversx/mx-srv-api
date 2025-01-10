@@ -20,7 +20,6 @@ import { AddressUtils, BinaryUtils, OriginLogger } from '@multiversx/sdk-nestjs-
 import { ApiService, ApiUtils } from "@multiversx/sdk-nestjs-http";
 import { GatewayService } from 'src/common/gateway/gateway.service';
 import { IndexerService } from "src/common/indexer/indexer.service";
-import { AccountOptionalFieldOption } from './entities/account.optional.field.options';
 import { AccountAssets } from 'src/common/assets/entities/account.assets';
 import { CacheInfo } from 'src/utils/cache.info';
 import { UsernameService } from '../usernames/username.service';
@@ -33,9 +32,10 @@ import { ProviderService } from '../providers/provider.service';
 import { KeysService } from '../keys/keys.service';
 import { NodeStatusRaw } from '../nodes/entities/node.status';
 import { AccountKeyFilter } from './entities/account.key.filter';
-import { Provider } from '../providers/entities/provider';
 import { ApplicationMostUsed } from './entities/application.most.used';
 import { AccountContract } from './entities/account.contract';
+import { AccountFetchOptions } from './entities/account.fetch.options';
+import { Provider } from '../providers/entities/provider';
 
 @Injectable()
 export class AccountService {
@@ -74,39 +74,38 @@ export class AccountService {
     return await this.indexerService.getAccountsCount(filter);
   }
 
-  async getAccount(address: string, fields?: string[], withGuardianInfo?: boolean): Promise<AccountDetailed | null> {
+  async getAccount(address: string, options?: AccountFetchOptions): Promise<AccountDetailed | null> {
     if (!AddressUtils.isAddressValid(address)) {
       return null;
     }
 
-    const provider: Provider | undefined = await this.providerService.getProvider(address);
-
-    let txCount: number = 0;
-    let scrCount: number = 0;
-
-    if (!fields || fields.length === 0 || fields.includes(AccountOptionalFieldOption.txCount)) {
-      txCount = await this.getAccountTxCount(address);
+    const account = await this.getAccountRaw(address, options?.withAssets);
+    if (!account) {
+      return null;
     }
 
-    if (!fields || fields.length === 0 || fields.includes(AccountOptionalFieldOption.scrCount)) {
-      scrCount = await this.getAccountScResults(address);
+    if (options?.withTxCount === true) {
+      account.txCount = await this.getAccountTxCount(address);
     }
 
-    const [account, elasticSearchAccount] = await Promise.all([
-      this.getAccountRaw(address, txCount, scrCount),
-      this.indexerService.getAccount(address),
-    ]);
+    if (options?.withScrCount === true) {
+      account.scrCount = await this.getAccountScResults(address);
+    }
 
-    if (account && withGuardianInfo === true) {
+    if (options?.withGuardianInfo === true) {
       await this.applyGuardianInfo(account);
     }
 
-    if (account && elasticSearchAccount) {
+    if (options?.withTimestamp) {
+      const elasticSearchAccount = await this.indexerService.getAccount(address);
       account.timestamp = elasticSearchAccount.timestamp;
     }
 
-    if (account && provider && provider.owner) {
-      account.ownerAddress = provider.owner;
+    if (AddressUtils.isSmartContractAddress(address)) {
+      const provider: Provider | undefined = await this.providerService.getProvider(address);
+      if (provider && provider.owner) {
+        account.ownerAddress = provider.owner;
+      }
     }
 
     return account;
@@ -161,8 +160,7 @@ export class AccountService {
     return await this.getAccountRaw(address);
   }
 
-  async getAccountRaw(address: string, txCount: number = 0, scrCount: number = 0): Promise<AccountDetailed | null> {
-    const assets = await this.assetsService.getAllAccountAssets();
+  async getAccountRaw(address: string, withAssets?: boolean): Promise<AccountDetailed | null> {
     try {
       const {
         account: { nonce, balance, code, codeHash, rootHash, developerReward, ownerAddress, codeMetadata },
@@ -170,7 +168,13 @@ export class AccountService {
 
       const shardCount = await this.protocolService.getShardCount();
       const shard = AddressUtils.computeShard(AddressUtils.bech32Decode(address), shardCount);
-      let account = new AccountDetailed({ address, nonce, balance, code, codeHash, rootHash, txCount, scrCount, shard, developerReward, ownerAddress, scamInfo: undefined, assets: assets[address], ownerAssets: assets[ownerAddress], nftCollections: undefined, nfts: undefined });
+      let account = new AccountDetailed({ address, nonce, balance, code, codeHash, rootHash, shard, developerReward, ownerAddress, scamInfo: undefined, nftCollections: undefined, nfts: undefined });
+
+      if (withAssets === true) {
+        const assets = await this.assetsService.getAllAccountAssets();
+        account.assets = assets[address];
+        account.ownerAssets = assets[ownerAddress];
+      }
 
       const codeAttributes = AddressUtils.decodeCodeMetadata(codeMetadata);
       if (codeAttributes) {
@@ -328,6 +332,24 @@ export class AccountService {
 
     const verifiedAccounts = await this.cachingService.get<string[]>(CacheInfo.VerifiedAccounts.key);
 
+    if (options.addresses && options.addresses.length > 0) {
+      const gatewayResponse: any = await this.gatewayService.getAccountsBulk(options.addresses);
+      const finalAccounts: Record<string, AccountDetailed> = {};
+
+      for (const address in gatewayResponse) {
+        if (gatewayResponse.hasOwnProperty(address)) {
+          finalAccounts[address] = gatewayResponse[address] as AccountDetailed;
+        }
+      }
+
+      for (const account of accounts) {
+        const gatewayAccount = finalAccounts[account.address];
+        if (gatewayAccount) {
+          account.balance = gatewayAccount.balance;
+        }
+      }
+    }
+
     for (const account of accounts) {
       account.shard = AddressUtils.computeShard(AddressUtils.bech32Decode(account.address), shardCount);
       account.assets = assets[account.address];
@@ -357,8 +379,6 @@ export class AccountService {
       if (verifiedAccounts && verifiedAccounts.includes(account.address)) {
         account.isVerified = true;
       }
-
-
     }
 
     return accounts;

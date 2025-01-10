@@ -59,7 +59,7 @@ export class NodeController {
     @Query('fullHistory', ParseBoolPipe) fullHistory?: boolean,
     @Query('sort', new ParseEnumPipe(NodeSort)) sort?: NodeSort,
     @Query('order', new ParseEnumPipe(SortOrder)) order?: SortOrder,
-    @Query('withIdentityInfo', new ParseBoolPipe) withIdentityInfo?: boolean,
+    @Query('withIdentityInfo', ParseBoolPipe) withIdentityInfo?: boolean,
     @Query('isQualified', ParseBoolPipe) isQualified?: boolean,
     @Query('isAuctioned', ParseBoolPipe) isAuctioned?: boolean,
     @Query('isAuctionDangerZone', ParseBoolPipe) isAuctionDangerZone?: boolean,

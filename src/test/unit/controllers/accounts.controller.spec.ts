@@ -30,6 +30,7 @@ import { ConfigModule } from "@nestjs/config";
 import { AccountDeferred } from "src/endpoints/accounts/entities/account.deferred";
 import request = require('supertest');
 import { mockAccountService, mockTokenService, mockNftService, mockDelegationLegacyService, mockWaitingListService, mockStakeService, mockTransactionService, mockSmartContractResultService, mockCollectionService, mockTransferService, mockApiConfigService, mockDelegationService } from "./services.mock/account.services.mock";
+import { AccountFetchOptions } from "src/endpoints/accounts/entities/account.fetch.options";
 
 describe('AccountController', () => {
   let app: INestApplication;
@@ -228,6 +229,16 @@ describe('AccountController', () => {
         .expect(200)
         .expect(response => {
           expect(response.body).toEqual(mockAccount);
+          expect(accountServiceMocks.getAccount).toHaveBeenCalledWith(
+            mockAccount.address,
+            new AccountFetchOptions({
+              withGuardianInfo: undefined,
+              withTxCount: undefined,
+              withScrCount: undefined,
+              withTimestamp: undefined,
+              withAssets: undefined,
+            })
+          );
         });
     });
 
@@ -240,28 +251,153 @@ describe('AccountController', () => {
         });
     });
 
-    it('should return account details including guardian info when withGuardianInfo is true', async () => {
+    it('should return account details with withTxCount parameter', async () => {
+      const address = "erd1rf4hv70arudgzus0ymnnsnc4pml0jkywg2xjvzslg0mz4nn2tg7q7k0t6p";
+      const mockAccountWithTxCount = {
+        ...mockAccount,
+        txCount: 100,
+      };
+
+      accountServiceMocks.getAccount.mockResolvedValue(mockAccountWithTxCount);
+
+      await request(app.getHttpServer())
+        .get(`/accounts/${address}?withTxCount=true`)
+        .expect(200)
+        .expect(response => {
+          expect(response.body).toEqual(mockAccountWithTxCount);
+          expect(accountServiceMocks.getAccount).toHaveBeenCalledWith(
+            address,
+            new AccountFetchOptions({
+              withGuardianInfo: undefined,
+              withTxCount: true,
+              withScrCount: undefined,
+              withTimestamp: undefined,
+              withAssets: undefined,
+            })
+          );
+        });
+    });
+
+    it('should return account details with withScrCount parameter', async () => {
+      const address = "erd1rf4hv70arudgzus0ymnnsnc4pml0jkywg2xjvzslg0mz4nn2tg7q7k0t6p";
+      const mockAccountWithScrCount = {
+        ...mockAccount,
+        scrCount: 50,
+      };
+
+      accountServiceMocks.getAccount.mockResolvedValue(mockAccountWithScrCount);
+
+      await request(app.getHttpServer())
+        .get(`/accounts/${address}?withScrCount=true`)
+        .expect(200)
+        .expect(response => {
+          expect(response.body).toEqual(mockAccountWithScrCount);
+          expect(accountServiceMocks.getAccount).toHaveBeenCalledWith(
+            address,
+            new AccountFetchOptions({
+              withGuardianInfo: undefined,
+              withTxCount: undefined,
+              withScrCount: true,
+              withTimestamp: undefined,
+              withAssets: undefined,
+            })
+          );
+        });
+    });
+
+    it('should return account details with withTimestamp parameter', async () => {
+      const address = "erd1rf4hv70arudgzus0ymnnsnc4pml0jkywg2xjvzslg0mz4nn2tg7q7k0t6p";
+      const mockAccountWithTimestamp = {
+        ...mockAccount,
+        timestamp: 1708946805,
+      };
+
+      accountServiceMocks.getAccount.mockResolvedValue(mockAccountWithTimestamp);
+
+      await request(app.getHttpServer())
+        .get(`/accounts/${address}?withTimestamp=true`)
+        .expect(200)
+        .expect(response => {
+          expect(response.body).toEqual(mockAccountWithTimestamp);
+          expect(accountServiceMocks.getAccount).toHaveBeenCalledWith(
+            address,
+            new AccountFetchOptions({
+              withGuardianInfo: undefined,
+              withTxCount: undefined,
+              withScrCount: undefined,
+              withTimestamp: true,
+              withAssets: undefined,
+            })
+          );
+        });
+    });
+
+    it('should return account details with withAssets parameter', async () => {
+      const address = "erd1rf4hv70arudgzus0ymnnsnc4pml0jkywg2xjvzslg0mz4nn2tg7q7k0t6p";
+      const mockAccountWithAssets = {
+        ...mockAccount,
+        assets: {
+          name: "Test Asset",
+          description: "Test Description",
+        },
+      };
+
+      accountServiceMocks.getAccount.mockResolvedValue(mockAccountWithAssets);
+
+      await request(app.getHttpServer())
+        .get(`/accounts/${address}?withAssets=true`)
+        .expect(200)
+        .expect(response => {
+          expect(response.body).toEqual(mockAccountWithAssets);
+          expect(accountServiceMocks.getAccount).toHaveBeenCalledWith(
+            address,
+            new AccountFetchOptions({
+              withGuardianInfo: undefined,
+              withTxCount: undefined,
+              withScrCount: undefined,
+              withTimestamp: undefined,
+              withAssets: true,
+            })
+          );
+        });
+    });
+
+    it('should return account details with all optional parameters set to true', async () => {
       const mockAddressList = createMockAccountsList(1);
       const accountDetails = mockAddressList[0];
       const address = "erd1rf4hv70arudgzus0ymnnsnc4pml0jkywg2xjvzslg0mz4nn2tg7q7k0t6p";
-      const mockAccountWithGuardianInfo = {
+      const mockAccountWithAllParams = {
         ...accountDetails,
         isGuarded: true,
         activeGuardianActivationEpoch: 496,
         activeGuardianAddress: "erd1x5d4p63uwcns8cvyrl4g3qgvwwa2nkt5jdp0vwetc7csqzpjzz0qec58k0",
         activeGuardianServiceUid: "MultiversXTCSService",
+        txCount: 100,
+        scrCount: 50,
+        timestamp: 1708946805,
+        assets: {
+          name: "Test Asset",
+          description: "Test Description",
+        },
       };
 
-      accountServiceMocks.getAccount.mockResolvedValue(mockAccountWithGuardianInfo);
+      accountServiceMocks.getAccount.mockResolvedValue(mockAccountWithAllParams);
 
       await request(app.getHttpServer())
-        .get(`/accounts/${address}?withGuardianInfo=true`)
+        .get(`/accounts/${address}?withGuardianInfo=true&withTxCount=true&withScrCount=true&withTimestamp=true&withAssets=true`)
         .expect(200)
         .expect(response => {
-          expect(response.body).toEqual(mockAccountWithGuardianInfo);
-          expect(response.body.isGuarded).toStrictEqual(true);
+          expect(response.body).toEqual(mockAccountWithAllParams);
           expect(accountServiceMocks.getAccount).toHaveBeenCalledWith(
-            expect.any(String), undefined, true);
+            address,
+            new AccountFetchOptions({
+              withGuardianInfo: true,
+              withTxCount: true,
+              withScrCount: true,
+              withTimestamp: true,
+              withAssets: true,
+            })
+          );
         });
     });
 
@@ -281,6 +417,91 @@ describe('AccountController', () => {
         .expect(response => {
           expect(response.body).toEqual(mockAccountFilteredFields);
           expect(Object.keys(response.body).sort()).toEqual(fields.sort());
+          expect(accountServiceMocks.getAccount).toHaveBeenCalledWith(
+            address,
+            new AccountFetchOptions({
+              withGuardianInfo: undefined,
+              withTxCount: undefined,
+              withScrCount: undefined,
+              withTimestamp: undefined,
+              withAssets: undefined,
+            })
+          );
+        });
+    });
+
+    it('should return account details with all filters set to false', async () => {
+      const address = "erd1rf4hv70arudgzus0ymnnsnc4pml0jkywg2xjvzslg0mz4nn2tg7q7k0t6p";
+      const mockAccountWithAllParamsFalse = {
+        ...mockAccount,
+      };
+
+      accountServiceMocks.getAccount.mockResolvedValue(mockAccountWithAllParamsFalse);
+
+      await request(app.getHttpServer())
+        .get(`/accounts/${address}?withGuardianInfo=false&withTxCount=false&withScrCount=false&withTimestamp=false&withAssets=false`)
+        .expect(200)
+        .expect(response => {
+          expect(response.body).toEqual(mockAccountWithAllParamsFalse);
+          expect(accountServiceMocks.getAccount).toHaveBeenCalledWith(
+            address,
+            new AccountFetchOptions({
+              withGuardianInfo: false,
+              withTxCount: false,
+              withScrCount: false,
+              withTimestamp: false,
+              withAssets: false,
+            })
+          );
+        });
+    });
+
+    it('should return account details with all filters set to true', async () => {
+      const address = "erd1rf4hv70arudgzus0ymnnsnc4pml0jkywg2xjvzslg0mz4nn2tg7q7k0t6p";
+      const mockAccountWithAllParamsTrue = {
+        ...mockAccount,
+        guardianInfo: {
+          guarded: true,
+          activeGuardian: "erd1guardianaddress",
+        },
+        txCount: 100,
+        scrCount: 50,
+        timestamp: 1708946805,
+        assets: {
+          name: "Test Asset",
+          description: "Test Description",
+        },
+      };
+
+      accountServiceMocks.getAccount.mockResolvedValue(mockAccountWithAllParamsTrue);
+
+      await request(app.getHttpServer())
+        .get(`/accounts/${address}?withGuardianInfo=true&withTxCount=true&withScrCount=true&withTimestamp=true&withAssets=true`)
+        .expect(200)
+        .expect(response => {
+          expect(response.body).toEqual(mockAccountWithAllParamsTrue);
+          expect(accountServiceMocks.getAccount).toHaveBeenCalledWith(
+            address,
+            new AccountFetchOptions({
+              withGuardianInfo: true,
+              withTxCount: true,
+              withScrCount: true,
+              withTimestamp: true,
+              withAssets: true,
+            })
+          );
+        });
+    });
+
+    it('should throw 404 Not Found when account does not exist', async () => {
+      const address = "erd1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gq4hu";
+      accountServiceMocks.getAccount.mockResolvedValue(null);
+
+      await request(app.getHttpServer())
+        .get(`${path}/${address}`)
+        .expect(404)
+        .expect(response => {
+          expect(response.body.message).toEqual('Account not found');
         });
     });
   });

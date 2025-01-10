@@ -26,8 +26,8 @@ export class ProviderController {
     @Query('identity') identity?: string,
     @Query('owner', ParseAddressPipe) owner?: string,
     @Query('providers', ParseAddressArrayPipe) providers?: string[],
-    @Query('withIdentityInfo', new ParseBoolPipe) withIdentityInfo?: boolean,
-    @Query('withLatestInfo', new ParseBoolPipe) withLatestInfo?: boolean,
+    @Query('withIdentityInfo', ParseBoolPipe) withIdentityInfo?: boolean,
+    @Query('withLatestInfo', ParseBoolPipe) withLatestInfo?: boolean,
   ): Promise<Provider[]> {
     const options = ProviderQueryOptions.applyDefaultOptions(owner, { withIdentityInfo, withLatestInfo });
 

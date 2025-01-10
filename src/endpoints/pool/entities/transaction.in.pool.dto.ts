@@ -48,6 +48,9 @@ export class TransactionInPool {
   @ApiProperty({ type: String, example: "0228618b6339c5eaf71ed1a8cd71df010ccd0369a29d957c37d53b0409408161726dd97e10ac7836996f666ffd636a797b9b9abecbd276971376fb3479b48203" })
   signature: string = '';
 
+  @ApiProperty({ type: String, nullable: true, example: 'composeTasks', required: false })
+  function: string = '';
+
   @ApiProperty({ type: String, example: "SmartContractResult" })
   type: TransactionType = TransactionType.Transaction;
 }

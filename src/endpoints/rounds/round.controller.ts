@@ -26,8 +26,8 @@ export class RoundController {
     @Query("size", new DefaultValuePipe(25), ParseIntPipe) size: number,
     @Query("validator", ParseBlsHashPipe) validator?: string,
     @Query('condition', new ParseEnumPipe(QueryConditionOptions)) condition?: QueryConditionOptions,
-    @Query("shard", new ParseIntPipe) shard?: number,
-    @Query("epoch", new ParseIntPipe) epoch?: number,
+    @Query("shard", ParseIntPipe) shard?: number,
+    @Query("epoch", ParseIntPipe) epoch?: number,
   ): Promise<Round[]> {
     return this.roundService.getRounds(new RoundFilter({ from, size, condition, validator, shard, epoch }));
   }
@@ -42,8 +42,8 @@ export class RoundController {
   getRoundCount(
     @Query("validator", ParseBlsHashPipe) validator?: string,
     @Query('condition', new ParseEnumPipe(QueryConditionOptions)) condition?: QueryConditionOptions,
-    @Query("shard", new ParseIntPipe) shard?: number,
-    @Query("epoch", new ParseIntPipe) epoch?: number,
+    @Query("shard", ParseIntPipe) shard?: number,
+    @Query("epoch", ParseIntPipe) epoch?: number,
   ): Promise<number> {
     return this.roundService.getRoundCount(new RoundFilter({ condition, validator, shard, epoch }));
   }
@@ -53,8 +53,8 @@ export class RoundController {
   getRoundCountAlternative(
     @Query("validator", ParseBlsHashPipe) validator?: string,
     @Query('condition', new ParseEnumPipe(QueryConditionOptions)) condition?: QueryConditionOptions,
-    @Query("shard", new ParseIntPipe) shard?: number,
-    @Query("epoch", new ParseIntPipe) epoch?: number,
+    @Query("shard", ParseIntPipe) shard?: number,
+    @Query("epoch", ParseIntPipe) epoch?: number,
   ): Promise<number> {
     return this.roundService.getRoundCount(new RoundFilter({ condition, validator, shard, epoch }));
   }

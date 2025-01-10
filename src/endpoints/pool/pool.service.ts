@@ -11,6 +11,9 @@ import { PoolFilter } from "./entities/pool.filter";
 import { TxInPoolFields } from "src/common/gateway/entities/tx.in.pool.fields";
 import { AddressUtils } from "@multiversx/sdk-nestjs-common";
 import { ProtocolService } from "../../common/protocol/protocol.service";
+import { TransactionActionService } from "../transactions/transaction-action/transaction.action.service";
+import { Transaction } from "../transactions/entities/transaction";
+import { ApiUtils } from "@multiversx/sdk-nestjs-http";
 
 @Injectable()
 export class PoolService {
@@ -19,6 +22,7 @@ export class PoolService {
     private readonly apiConfigService: ApiConfigService,
     private readonly cacheService: CacheService,
     private readonly protocolService: ProtocolService,
+    private readonly transactionActionService: TransactionActionService,
   ) { }
 
   async getTransactionFromPool(txHash: string): Promise<TransactionInPool | undefined> {
@@ -105,6 +109,11 @@ export class PoolService {
       transaction.receiverShard = AddressUtils.computeShard(AddressUtils.bech32Decode(transaction.receiver), shardCount);
     }
 
+    const metadata = await this.transactionActionService.getTransactionMetadata(this.poolTransactionToTransaction(transaction), false);
+    if (metadata && metadata.functionName) {
+      transaction.function = metadata.functionName;
+    }
+
     return transaction;
   }
 
@@ -115,8 +124,13 @@ export class PoolService {
         (!filters.receiver || transaction.receiver === filters.receiver) &&
         (!filters.type || transaction.type === filters.type) &&
         (filters.senderShard === undefined || transaction.senderShard === filters.senderShard) &&
-        (filters.receiverShard === undefined || transaction.receiverShard === filters.receiverShard)
+        (filters.receiverShard === undefined || transaction.receiverShard === filters.receiverShard) &&
+        (filters.functions === undefined || transaction.function === undefined || filters.functions.indexOf(transaction.function) > -1)
       );
     });
+  }
+
+  private poolTransactionToTransaction(transaction: TransactionInPool): Transaction {
+    return ApiUtils.mergeObjects(new Transaction(), transaction);
   }
 }

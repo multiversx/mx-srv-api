@@ -18,6 +18,7 @@ import { SmartContractResultFilter } from "src/endpoints/sc-results/entities/sma
 import { ApplicationFilter } from "src/endpoints/applications/entities/application.filter";
 import { NftType } from "../entities/nft.type";
 import { EventsFilter } from "src/endpoints/events/entities/events.filter";
+import { ScriptQuery } from "./script.query";
 
 @Injectable()
 export class ElasticIndexerHelper {
@@ -93,7 +94,7 @@ export class ElasticIndexerHelper {
           QueryType.Nested('roles', [new MatchQuery('roles.ESDTRoleNFTUpdateAttributes', address)]),
           QueryType.Nested('roles', [new MatchQuery('roles.ESDTRoleNFTAddURI', address)]),
           QueryType.Nested('roles', [new MatchQuery('roles.ESDTTransferRole', address)]),
-        ]
+        ],
       ));
     }
 
@@ -253,7 +254,7 @@ export class ElasticIndexerHelper {
         QueryType.Should([
           QueryType.Match('nft_scamInfoType', 'scam'),
           QueryType.Match('nft_scamInfoType', 'potentialScam'),
-        ])
+        ]),
       );
     }
 
@@ -309,12 +310,16 @@ export class ElasticIndexerHelper {
         smartContractResultConditions.push(QueryType.Match('sender', filter.address));
       }
 
+      let mustNotQueries: AbstractQuery[] = [
+        QueryType.Exists('canBeIgnored'),
+      ];
+      if (filter.withRefunds) {
+        mustNotQueries = [];
+      }
       elasticQuery = elasticQuery.withCondition(QueryConditionOptions.should, QueryType.Must([
         QueryType.Match('type', 'unsigned'),
         QueryType.Should(smartContractResultConditions),
-      ], [
-        QueryType.Exists('canBeIgnored'),
-      ]))
+      ], mustNotQueries))
         .withCondition(QueryConditionOptions.should, QueryType.Must([
           QueryType.Should([QueryType.Match('type', 'normal')]),
           QueryType.Should([
@@ -429,7 +434,7 @@ export class ElasticIndexerHelper {
         [
           QueryType.Match('currentOwner', address),
           ...rolesConditions,
-        ]
+        ],
       ))
       .withMustMatchCondition('token', filter.identifier)
       .withMustMatchCondition('currentOwner', filter.owner);
@@ -507,9 +512,22 @@ export class ElasticIndexerHelper {
   }
 
   public buildTransactionFilterQuery(filter: TransactionFilter, address?: string): ElasticQuery {
-    let elasticQuery = ElasticQuery.create()
-      .withMustMatchCondition('type', 'normal')
-      .withMustMatchCondition('senderShard', filter.senderShard)
+    let elasticQuery = ElasticQuery.create();
+
+    if (!filter.withRelayedScresults) {
+      elasticQuery = elasticQuery.withMustMatchCondition('type', 'normal');
+    } else {
+      elasticQuery = elasticQuery.withShouldCondition([
+        QueryType.Match('type', 'normal'),
+        QueryType.Must([
+          QueryType.Exists('relayerAddr'),
+          QueryType.Match('type', 'unsigned'),
+          new ScriptQuery(`doc['originalTxHash'].size() > 0 && doc['prevTxHash'].size() > 0 && doc['originalTxHash'].value == doc['prevTxHash'].value`),
+        ]),
+      ]);
+    }
+
+    elasticQuery = elasticQuery.withMustMatchCondition('senderShard', filter.senderShard)
       .withMustMatchCondition('receiverShard', filter.receiverShard)
       .withMustMatchCondition('miniBlockHash', filter.miniBlockHash)
       .withMustMultiShouldCondition(filter.hashes, hash => QueryType.Match('_id', hash))
