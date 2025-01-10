@@ -185,6 +185,9 @@ describe('TransactionService', () => {
         scResults: [''],
         relayerAddr: 'erd1sdrjn0uuulydacwjam3v5afl427ptk797fpcujpfcsakfck8aqjquq9afc',
         version: 1,
+        relayer: 'erd1sdrjn0uuulydacwjam3v5afl427ptk797fpcujpfcsakfck8aqjquq9afc',
+        isRelayed: true,
+        relayerSignature: 'bc51e9032332740d60c404d4bf553ae225ca77a70ad799a1cdfc6e73609be8ec62e89ac6e2c2621ffbfb89e6fab620c137010662f3ebea9c422c9f1dbec04a03',
       },
       {
         hash: '2b1ce5558f5faa533afd437a42a5aeadea8302dc3cca778c0ed50d19c0a047a4',
@@ -222,6 +225,9 @@ describe('TransactionService', () => {
         scResults: [''],
         relayerAddr: 'erd1sdrjn0uuulydacwjam3v5afl427ptk797fpcujpfcsakfck8aqjquq9afc',
         version: 1,
+        relayer: 'erd1sdrjn0uuulydacwjam3v5afl427ptk797fpcujpfcsakfck8aqjquq9afc',
+        isRelayed: true,
+        relayerSignature: 'bc51e9032332740d60c404d4bf553ae225ca77a70ad799a1cdfc6e73609be8ec62e89ac6e2c2621ffbfb89e6fab620c137010662f3ebea9c422c9f1dbec04a03',
       },
     ];
 

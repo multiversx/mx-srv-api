@@ -250,6 +250,8 @@ export class TransactionGetService {
         guardianAddress: transaction.guardian,
         guardianSignature: transaction.guardianSignature,
         inTransit: transaction.miniblockHash !== undefined && transaction.status === TransactionStatus.pending,
+        relayer: transaction.relayerAddress,
+        relayerSignature: transaction.relayerSignature,
       };
 
       return ApiUtils.mergeObjects(new TransactionDetailed(), result);

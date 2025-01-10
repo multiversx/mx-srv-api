@@ -117,6 +117,7 @@ export class TransferController {
   @ApiQuery({ name: 'before', description: 'Before timestamp', required: false })
   @ApiQuery({ name: 'after', description: 'After timestamp', required: false })
   @ApiQuery({ name: 'round', description: 'Round number', required: false })
+  @ApiQuery({ name: 'relayer', description: 'Filter by the relayer address', required: false })
   @ApiQuery({ name: 'isRelayed', description: 'Returns relayed transactions details', required: false, type: Boolean })
   @ApiQuery({ name: 'withRefunds', description: 'Include refund transactions', required: false })
   async getAccountTransfersCount(
@@ -132,6 +133,7 @@ export class TransferController {
     @Query('before', ParseIntPipe) before?: number,
     @Query('after', ParseIntPipe) after?: number,
     @Query('round', ParseIntPipe) round?: number,
+    @Query('relayer', ParseAddressPipe) relayer?: string,
     @Query('isRelayed', ParseBoolPipe) isRelayed?: boolean,
     @Query('withRefunds', ParseBoolPipe) withRefunds?: boolean,
   ): Promise<number> {
@@ -147,6 +149,7 @@ export class TransferController {
       status,
       before,
       after,
+      relayer,
       isRelayed,
       round,
       withRefunds,
@@ -168,6 +171,8 @@ export class TransferController {
     @Query('before', ParseIntPipe) before?: number,
     @Query('after', ParseIntPipe) after?: number,
     @Query('round', ParseIntPipe) round?: number,
+    @Query('relayer', ParseAddressPipe) relayer?: string,
+    @Query('isRelayed', ParseBoolPipe) isRelayed?: boolean,
     @Query('withRefunds', ParseBoolPipe) withRefunds?: boolean,
   ): Promise<number> {
     return await this.transferService.getTransfersCount(new TransactionFilter({
@@ -183,6 +188,8 @@ export class TransferController {
       before,
       after,
       round,
+      relayer,
+      isRelayed,
       withRefunds,
     }));
   }

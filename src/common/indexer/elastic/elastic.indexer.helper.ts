@@ -316,17 +316,23 @@ export class ElasticIndexerHelper {
       if (filter.withRefunds) {
         mustNotQueries = [];
       }
+
+      const shouldConditions = [
+        QueryType.Match('sender', filter.address),
+        QueryType.Match('receiver', filter.address),
+        QueryType.Match('receivers', filter.address),
+      ];
+      if (filter.withTxsRelayedByAddress) {
+        shouldConditions.push(QueryType.Match('relayer', filter.address));
+      }
+
       elasticQuery = elasticQuery.withCondition(QueryConditionOptions.should, QueryType.Must([
         QueryType.Match('type', 'unsigned'),
         QueryType.Should(smartContractResultConditions),
       ], mustNotQueries))
         .withCondition(QueryConditionOptions.should, QueryType.Must([
           QueryType.Should([QueryType.Match('type', 'normal')]),
-          QueryType.Should([
-            QueryType.Match('sender', filter.address),
-            QueryType.Match('receiver', filter.address),
-            QueryType.Match('receivers', filter.address),
-          ]),
+          QueryType.Should(shouldConditions),
         ]));
     }
 
@@ -335,7 +341,10 @@ export class ElasticIndexerHelper {
     }
 
     if (filter.isRelayed) {
-      elasticQuery = elasticQuery.withMustMatchCondition('isRelayed', filter.isRelayed);
+      elasticQuery = elasticQuery.withMustCondition(QueryType.Should([
+        QueryType.Match('isRelayed', filter.isRelayed),
+        QueryType.Exists('relayer'),
+      ]));
     }
 
     if (filter.type) {
@@ -550,7 +559,14 @@ export class ElasticIndexerHelper {
     }
 
     if (filter.isRelayed) {
-      elasticQuery = elasticQuery.withMustMatchCondition('isRelayed', filter.isRelayed);
+      elasticQuery = elasticQuery.withMustCondition(QueryType.Should([
+        QueryType.Match('isRelayed', filter.isRelayed),
+        QueryType.Exists('relayer'),
+      ]));
+    }
+
+    if (filter.relayer) {
+      elasticQuery = elasticQuery.withShouldCondition(QueryType.Match('relayer', filter.relayer));
     }
 
     if (filter.round) {

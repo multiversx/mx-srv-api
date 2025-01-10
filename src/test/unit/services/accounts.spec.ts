@@ -427,6 +427,9 @@ describe('Account Service', () => {
         scResults: [],
         relayerAddr: '',
         version: 2,
+        relayer: '',
+        isRelayed: false,
+        relayerSignature: '',
       });
 
       const result = await service.getAccountDeployedAtRaw(address);

@@ -43,4 +43,6 @@ export class Transaction {
   logs: TransactionLog | undefined = undefined;
   receipt: TransactionReceipt | undefined = undefined;
   smartContractResults: GatewaySmartContractResults[] | undefined = undefined;
+  relayerAddress: string = '';
+  relayerSignature: string = '';
 }

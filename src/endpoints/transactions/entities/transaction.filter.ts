@@ -28,6 +28,7 @@ export class TransactionFilter {
   round?: number;
   withRefunds?: boolean;
   withRelayedScresults?: boolean;
+  withTxsRelayedByAddress?: boolean;
 
   constructor(init?: Partial<TransactionFilter>) {
     Object.assign(this, init);

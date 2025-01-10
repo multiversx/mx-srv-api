@@ -107,6 +107,9 @@ export class Transaction {
   @ApiProperty({ type: String, nullable: true, required: false })
   relayer: string | undefined = undefined;
 
+  @ApiProperty({ type: String, nullable: true, required: false })
+  relayerSignature: string | undefined = undefined;
+
   getDate(): Date | undefined {
     if (this.timestamp) {
       return new Date(this.timestamp * 1000);

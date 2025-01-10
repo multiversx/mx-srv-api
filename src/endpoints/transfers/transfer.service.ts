@@ -51,7 +51,12 @@ export class TransferService {
     for (const elasticOperation of elasticOperations) {
       const transaction = ApiUtils.mergeObjects(new TransactionDetailed(), elasticOperation);
       transaction.type = elasticOperation.type === 'normal' ? TransactionType.Transaction : TransactionType.SmartContractResult;
-      transaction.relayer = elasticOperation.relayerAddr;
+      if (elasticOperation.relayer) {
+        transaction.relayer = elasticOperation.relayer;
+        transaction.isRelayed = true;
+      } else {
+        transaction.relayer = elasticOperation.relayerAddr;
+      }
 
       if (transaction.type === TransactionType.SmartContractResult) {
         delete transaction.gasLimit;
