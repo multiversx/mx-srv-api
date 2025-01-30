@@ -12,19 +12,17 @@ export class BlsService {
   ) { }
 
   public async getPublicKeys(shard: number, epoch: number): Promise<string[]> {
-    return await this.cachingService.getOrSet(
+    const cachedValue = await this.cachingService.getOrSet(
       CacheInfo.ShardAndEpochBlses(shard, epoch).key,
       async () => await this.getPublicKeysRaw(shard, epoch),
-      CacheInfo.ShardAndEpochBlses(shard, epoch).ttl
+      CacheInfo.ShardAndEpochBlses(shard, epoch).ttl,
     );
+
+    return cachedValue ? cachedValue : [];
   }
 
-  private async getPublicKeysRaw(shard: number, epoch: number): Promise<string[]> {
-    const publicKeys = await this.indexerService.getPublicKeys(shard, epoch);
-    if (publicKeys) {
-      return publicKeys;
-    }
-    return [];
+  private async getPublicKeysRaw(shard: number, epoch: number): Promise<string[] | undefined> {
+    return await this.indexerService.getPublicKeys(shard, epoch);
   }
 
   async getBlsIndex(bls: string, shardId: number, epoch: number): Promise<number | boolean> {

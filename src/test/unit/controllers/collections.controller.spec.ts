@@ -447,7 +447,7 @@ describe('CollectionController', () => {
       expect(collectionServiceMocks.getNftCollection).toHaveBeenCalled();
     });
 
-    it('should should throw collection validation pipe if given collection is not a valid collection', async () => {
+    it('should throw collection validation pipe if given collection is not a valid collection', async () => {
       collectionServiceMocks.getNftCollection.mockReturnValue({});
       const collection = 'TEST-5409d3-Test';
 

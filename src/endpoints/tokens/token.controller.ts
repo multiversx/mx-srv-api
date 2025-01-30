@@ -17,7 +17,7 @@ import { QueryPagination } from "src/common/entities/query.pagination";
 import { TokenFilter } from "./entities/token.filter";
 import { TransactionFilter } from "../transactions/entities/transaction.filter";
 import { TransactionQueryOptions } from "../transactions/entities/transactions.query.options";
-import { ParseAddressPipe, ParseBlockHashPipe, ParseBoolPipe, ParseEnumPipe, ParseIntPipe, ParseArrayPipe, ParseTokenPipe, ParseAddressArrayPipe, ApplyComplexity, ParseEnumArrayPipe } from "@multiversx/sdk-nestjs-common";
+import { ParseAddressPipe, ParseBlockHashPipe, ParseBoolPipe, ParseEnumPipe, ParseIntPipe, ParseArrayPipe, ParseAddressArrayPipe, ApplyComplexity, ParseEnumArrayPipe, ParseTokenPipe } from "@multiversx/sdk-nestjs-common";
 import { TransactionDetailed } from "../transactions/entities/transaction.detailed";
 import { Response } from "express";
 import { TokenType } from "src/common/indexer/entities";
@@ -136,11 +136,6 @@ export class TokenController {
     @Param('identifier', ParseTokenPipe) identifier: string,
     @Query('denominated', ParseBoolPipe) denominated?: boolean,
   ): Promise<TokenSupplyResult> {
-    const isToken = await this.tokenService.isToken(identifier);
-    if (!isToken) {
-      throw new HttpException('Token not found', HttpStatus.NOT_FOUND);
-    }
-
     const getSupplyResult = await this.tokenService.getTokenSupply(identifier, { denominated });
     if (!getSupplyResult) {
       throw new NotFoundException('Token not found');
@@ -160,11 +155,6 @@ export class TokenController {
     @Query('from', new DefaultValuePipe(0), ParseIntPipe) from: number,
     @Query("size", new DefaultValuePipe(25), ParseIntPipe) size: number
   ): Promise<TokenAccount[]> {
-    const isToken = await this.tokenService.isToken(identifier);
-    if (!isToken) {
-      throw new HttpException('Token not found', HttpStatus.NOT_FOUND);
-    }
-
     const accounts = await this.tokenService.getTokenAccounts(new QueryPagination({ from, size }), identifier);
     if (!accounts) {
       throw new NotFoundException('Token not found');
@@ -180,11 +170,6 @@ export class TokenController {
   async getTokenAccountsCount(
     @Param('identifier', ParseTokenPipe) identifier: string,
   ): Promise<number> {
-    const isToken = await this.tokenService.isToken(identifier);
-    if (!isToken) {
-      throw new HttpException('Token not found', HttpStatus.NOT_FOUND);
-    }
-
     const count = await this.tokenService.getTokenAccountsCount(identifier);
     if (count === undefined) {
       throw new NotFoundException('Token not found');
@@ -314,11 +299,6 @@ export class TokenController {
     @Query('withRelayedScresults', ParseBoolPipe) withRelayedScresults?: boolean,
     @Query('isScCall', ParseBoolPipe) isScCall?: boolean,
   ) {
-    const isToken = await this.tokenService.isToken(identifier);
-    if (!isToken) {
-      throw new NotFoundException('Token not found');
-    }
-
     return await this.transactionService.getTransactionCount(new TransactionFilter({
       sender,
       receivers: receiver,
@@ -343,11 +323,6 @@ export class TokenController {
   async getTokenRoles(
     @Param('identifier', ParseTokenPipe) identifier: string,
   ): Promise<TokenRoles[]> {
-    const isToken = await this.tokenService.isToken(identifier);
-    if (!isToken) {
-      throw new HttpException('Token not found', HttpStatus.NOT_FOUND);
-    }
-
     const roles = await this.tokenService.getTokenRoles(identifier);
     if (!roles) {
       throw new HttpException('Token roles not found', HttpStatus.NOT_FOUND);
@@ -364,11 +339,6 @@ export class TokenController {
     @Param('identifier', ParseTokenPipe) identifier: string,
     @Param('address', ParseAddressPipe) address: string,
   ): Promise<TokenRoles> {
-    const isToken = await this.tokenService.isToken(identifier);
-    if (!isToken) {
-      throw new NotFoundException('Token not found');
-    }
-
     const roles = await this.tokenService.getTokenRolesForIdentifierAndAddress(identifier, address);
     if (!roles) {
       throw new NotFoundException('Token not found');
@@ -424,11 +394,6 @@ export class TokenController {
     @Query('withBlockInfo', ParseBoolPipe) withBlockInfo?: boolean,
     @Query('withActionTransferValue', ParseBoolPipe) withActionTransferValue?: boolean,
   ): Promise<Transaction[]> {
-    const isToken = await this.tokenService.isToken(identifier);
-    if (!isToken) {
-      throw new NotFoundException('Token not found');
-    }
-
     const options = TransactionQueryOptions.applyDefaultOptions(size, { withScamInfo, withUsername, withBlockInfo, withActionTransferValue });
 
     return await this.transferService.getTransfers(new TransactionFilter({
@@ -483,11 +448,6 @@ export class TokenController {
     @Query('round', ParseIntPipe) round?: number,
     @Query('isScCall', ParseBoolPipe) isScCall?: boolean,
   ): Promise<number> {
-    const isToken = await this.tokenService.isToken(identifier);
-    if (!isToken) {
-      throw new NotFoundException('Token not found');
-    }
-
     return await this.transferService.getTransfersCount(new TransactionFilter({
       senders: sender,
       receivers: receiver,
@@ -522,11 +482,6 @@ export class TokenController {
     @Query('round', ParseIntPipe) round?: number,
     @Query('isScCall', ParseBoolPipe) isScCall?: boolean,
   ): Promise<number> {
-    const isToken = await this.tokenService.isToken(identifier);
-    if (!isToken) {
-      throw new NotFoundException('Token not found');
-    }
-
     return await this.transferService.getTransfersCount(new TransactionFilter({
       senders: sender,
       receivers: receiver,
@@ -549,11 +504,6 @@ export class TokenController {
     @Param('identifier', ParseTokenPipe) identifier: string,
     @Res() response: Response
   ): Promise<void> {
-    const isToken = await this.tokenService.isToken(identifier);
-    if (!isToken) {
-      throw new NotFoundException('Token not found');
-    }
-
     const url = await this.tokenService.getLogoPng(identifier);
     if (url === undefined) {
       throw new NotFoundException('Assets not found');
@@ -567,11 +517,6 @@ export class TokenController {
     @Param('identifier', ParseTokenPipe) identifier: string,
     @Res() response: Response
   ): Promise<void> {
-    const isToken = await this.tokenService.isToken(identifier);
-    if (!isToken) {
-      throw new NotFoundException('Token not found');
-    }
-
     const url = await this.tokenService.getLogoSvg(identifier);
     if (url === undefined) {
       throw new NotFoundException('Assets not found');

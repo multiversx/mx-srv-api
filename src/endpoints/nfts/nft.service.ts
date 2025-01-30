@@ -204,10 +204,6 @@ export class NftService {
   async getSingleNft(identifier: string): Promise<Nft | undefined> {
     const nfts = await this.getNftsInternal(new QueryPagination({ from: 0, size: 1 }), new NftFilter(), identifier);
 
-    if (!TokenUtils.isNft(identifier)) {
-      return undefined;
-    }
-
     if (nfts.length === 0) {
       return undefined;
     }
@@ -284,7 +280,7 @@ export class NftService {
   }
 
   async isNft(identifier: string): Promise<boolean> {
-    if (identifier.split('-').length !== 3) {
+    if (!TokenUtils.isNft(identifier)) {
       return false;
     }
 
@@ -569,7 +565,7 @@ export class NftService {
   }
 
   async getNftSupply(identifier: string): Promise<string | undefined> {
-    if (identifier.split('-').length !== 3) {
+    if (!TokenUtils.isNft(identifier)) {
       return undefined;
     }
 
