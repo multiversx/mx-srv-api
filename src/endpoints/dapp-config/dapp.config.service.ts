@@ -18,7 +18,7 @@ export class DappConfigService {
   }
 
   getDappConfigurationRaw(): DappConfig | undefined {
-    const network = this.apiConfigService.getNetwork();
+    const network = this.apiConfigService.getDappNetwork();
     const configuration = FileUtils.parseJSONFile(`./config/dapp.config.${network}.json`);
 
     return configuration;

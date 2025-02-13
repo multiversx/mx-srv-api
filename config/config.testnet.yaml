@@ -1,4 +1,5 @@
 network: 'testnet'
+dappNetwork: 'testnet'
 metaChainShardId: 4294967295
 api:
   public: true

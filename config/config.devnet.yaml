@@ -1,4 +1,5 @@
 network: 'devnet'
+dappNetwork: 'devnet'
 metaChainShardId: 4294967295
 api:
   public: true

@@ -175,6 +175,15 @@ export class ApiConfigService {
     return network;
   }
 
+  getDappNetwork(): string {
+    const network = this.configService.get<string>('dappNetwork');
+    if (!network) {
+      return this.getNetwork();
+    }
+
+    return network;
+  }
+
   getCluster(): string | undefined {
     return this.configService.get<string>('cluster');
   }

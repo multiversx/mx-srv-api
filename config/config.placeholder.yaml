@@ -1,13 +1,14 @@
-network: 'DAPP_CONFIG'
+network: 'testnet'
+dappNetwork: 'DAPP_CONFIG'
 metaChainShardId: 4294967295
 api:
-  public: true
+  public: MVX_API_PUBLIC
   publicPort: 3001
-  private: true
+  private: MVX_API_PRIVATE
   privatePort: 4001
   websocket: true
 cron:
-  cacheWarmer: true
+  cacheWarmer: MVX_CACHEWARMER
   fastWarm: true
   queueWorker: true
   elasticUpdater: false
@@ -21,9 +22,9 @@ flags:
   collectionPropertiesFromGateway: false
 features:
   eventsNotifier:
-    enabled: false
+    enabled: MVX_EVENTS_NOTIFIER
     port: 5674
-    url: 'amqp://guest:guest@127.0.0.1:5673'
+    url: 'MVX_EVENTS_NOTIFIER_RABBIT_URL'
     exchange: 'all_events'
     queue: 'api-process-logs-and-events'
   guestCaching:
@@ -61,16 +62,16 @@ features:
       - ''
     jwtSecret: ''
   stakingV4:
-    enabled: false
+    enabled: MVX_STAKINGV4
     cronExpression: '*/5 * * * * *'
     activationEpoch: 1043
   nodeEpochsLeft:
     enabled: false
   transactionProcessor:
-    enabled: false
+    enabled: MVX_TRANSACTIONPROCESSOR
     maxLookBehind: 100
   transactionCompleted:
-    enabled: false
+    enabled: MVX_transactionCompleted
     maxLookBehind: 100
     logLevel: 'Error'
   transactionBatch:
@@ -97,14 +98,14 @@ features:
     enabled: false
     maxLookBehindNonces: 100
   nodesFetch:
-    enabled: true
-    serviceUrl: 'NODESFETCH_URL'
+    enabled: MVX_NODESFETCH_ENABLE
+    serviceUrl: 'MVX_NODESFETCH_URL'
   tokensFetch:
-    enabled: true
-    serviceUrl: 'TOKENSFETCH_URL'
+    enabled: MVX_TOKENSFETCH_ENABLE
+    serviceUrl: 'MVX_TOKENSFETCH_URL'
   providersFetch:
-    enabled: true
-    serviceUrl: 'PROVIDERSFETCH_URL'
+    enabled: MVX_PROVIDERSFETCH_ENABLE
+    serviceUrl: 'MVX_PROVIDERSFETCH_URL'
 image:
   width: 600
   height: 600
@@ -147,7 +148,7 @@ caching:
   cacheTtl: 6
   processTtl: 600
   poolLimit: 50
-  cacheDuration: 3
+  cacheDuration: MVX_CACHING_cacheDuration
 keepAliveTimeout:
   downstream: 61000
   upstream: 60000
