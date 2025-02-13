@@ -18,13 +18,12 @@ import { EsdtDataSource } from "../esdt/entities/esdt.data.source";
 import { EsdtAddressService } from "../esdt/esdt.address.service";
 import { PersistenceService } from "src/common/persistence/persistence.service";
 import { MexTokenService } from "../mex/mex.token.service";
-import { BinaryUtils, NumberUtils, RecordUtils, BatchUtils, TokenUtils } from "@multiversx/sdk-nestjs-common";
+import { BinaryUtils, NumberUtils, RecordUtils, BatchUtils, TokenUtils, OriginLogger } from "@multiversx/sdk-nestjs-common";
 import { ApiUtils } from "@multiversx/sdk-nestjs-http";
 import { CacheService } from "@multiversx/sdk-nestjs-cache";
 import { IndexerService } from "src/common/indexer/indexer.service";
 import { LockedAssetService } from "../../common/locked-asset/locked-asset.service";
 import { CollectionAccount } from "../collections/entities/collection.account";
-import { OriginLogger } from "@multiversx/sdk-nestjs-common";
 import { NftRankAlgorithm } from "src/common/assets/entities/nft.rank.algorithm";
 import { NftRarity } from "./entities/nft.rarity";
 import { NftRarities } from "./entities/nft.rarities";
@@ -349,6 +348,9 @@ export class NftService {
       const elasticNftData = elasticNft.data;
       if (elasticNftData) {
         nft.name = elasticNftData.name;
+        if (elasticNftData.hash) {
+          nft.hash = BinaryUtils.base64Decode(elasticNftData.hash);
+        }
         nft.creator = elasticNftData.creator;
         nft.royalties = elasticNftData.royalties ? elasticNftData.royalties / 100 : undefined; // 10.000 => 100%
         nft.attributes = elasticNftData.attributes;
@@ -593,6 +595,16 @@ export class NftService {
 
   async getAccountEsdtByCollection(identifier: string, pagination?: QueryPagination) {
     return await this.indexerService.getAccountsEsdtByCollection([identifier], pagination);
+  }
+
+  // TODO: use this function to determine if a MetaESDT is a proof if we decide to add API filters to extract all the proofs
+  getNftProofHash(nft: Nft): string | undefined{
+    const hashField = BinaryUtils.base64Decode(nft.hash);
+    if (nft.type !== NftType.MetaESDT || !hashField.startsWith('proof:')) {
+      return undefined;
+    }
+
+    return hashField.split('proof:')[1];
   }
 
   private getNftRarity(elasticNft: any, algorithm: NftRankAlgorithm): NftRarity | undefined {
