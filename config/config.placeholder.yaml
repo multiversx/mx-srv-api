@@ -1,6 +1,7 @@
 network: 'testnet'
 dappNetwork: 'DAPP_CONFIG'
 metaChainShardId: 4294967295
+crossChainSenderShardId: 4294967293
 api:
   public: MVX_API_PUBLIC
   publicPort: 3001
