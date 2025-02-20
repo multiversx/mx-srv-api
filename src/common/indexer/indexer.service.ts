@@ -474,4 +474,9 @@ export class IndexerService implements IndexerInterface {
   async getEventsCount(filter: EventsFilter): Promise<number> {
     return await this.indexerInterface.getEventsCount(filter);
   }
+
+  @LogPerformanceAsync(MetricsEvents.SetIndexerDuration)
+  async setCollectionAssetsFields(identifier: string, assets: any): Promise<void> {
+    return await this.indexerInterface.setCollectionAssetsFields(identifier, assets);
+  }
 }

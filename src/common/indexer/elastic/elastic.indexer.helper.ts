@@ -157,9 +157,24 @@ export class ElasticIndexerHelper {
       elasticQuery = elasticQuery.withMustMultiShouldCondition(filter.subType, subType => QueryType.Match('type', subType));
     }
 
+    if (filter.name) {
+      elasticQuery = elasticQuery.withMustWildcardCondition('api_assets.name', filter.name);
+    }
+
+    if (filter.hasAssets !== undefined) {
+      if (filter.hasAssets) {
+        elasticQuery = elasticQuery.withMustExistCondition('api_assets');
+      } else {
+        elasticQuery = elasticQuery.withMustNotExistCondition('api_assets');
+      }
+    }
+
+    if (filter.search) {
+      elasticQuery = elasticQuery.withSearchWildcardCondition(filter.search, ['token', 'name', 'api_assets.name']);
+    }
+
     return elasticQuery.withMustMatchCondition('token', filter.collection, QueryOperator.AND)
-      .withMustMultiShouldCondition(filter.identifiers, identifier => QueryType.Match('token', identifier, QueryOperator.AND))
-      .withSearchWildcardCondition(filter.search, ['token', 'name']);
+      .withMustMultiShouldCondition(filter.identifiers, identifier => QueryType.Match('token', identifier, QueryOperator.AND));
   }
 
   private getRoleCondition(query: ElasticQuery, name: string, address: string | undefined, value: string | boolean) {

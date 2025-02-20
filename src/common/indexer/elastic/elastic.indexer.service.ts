@@ -920,6 +920,19 @@ export class ElasticIndexerService implements IndexerInterface {
     return await this.elasticService.setCustomValues('accounts', address, { assets });
   }
 
+  async setCollectionAssetsFields(identifier: string, assets: any): Promise<void> {
+    const collection = await this.getCollection(identifier);
+    if (!collection) {
+      return;
+    }
+
+    if (this.metaEsdtTypes.includes(collection.type as NftType)) {
+      return await this.elasticService.setCustomValues('tokens', identifier, {
+        api_assets: assets,
+      });
+    }
+  }
+
   async ensureAccountsWritable(): Promise<void> {
     await this.ensureCollectionWritable('accounts');
   }
