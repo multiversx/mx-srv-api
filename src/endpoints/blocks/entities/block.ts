@@ -1,6 +1,7 @@
 import { ApiUtils } from "@multiversx/sdk-nestjs-http";
 import { ApiProperty } from "@nestjs/swagger";
 import { Identity } from "src/endpoints/identities/entities/identity";
+import { BlockProofDto } from "./block.proof";
 
 export class Block {
   constructor(init?: Partial<Block>) {
@@ -63,6 +64,12 @@ export class Block {
 
   @ApiProperty({ type: String, nullable: true, required: false })
   scheduledRootHash: string | undefined = undefined;
+
+  @ApiProperty({ type: BlockProofDto, nullable: true, required: false })
+  previousHeaderProof: BlockProofDto | undefined = undefined;
+
+  @ApiProperty({ type: BlockProofDto, nullable: true, required: false })
+  proof: BlockProofDto | undefined = undefined;
 
   static mergeWithElasticResponse<T extends Block>(newBlock: T, blockRaw: any): T {
     blockRaw.shard = blockRaw.shardId;
