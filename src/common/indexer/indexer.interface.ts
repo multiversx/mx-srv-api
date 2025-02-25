@@ -174,6 +174,8 @@ export interface IndexerInterface {
 
   setAccountAssetsFields(address: string, assets: AccountAssets): Promise<void>
 
+  setCollectionAssetsFields(identifier: string, assets: any): Promise<void>
+
   ensureAccountsWritable(): Promise<void>
 
   ensureTokensWritable(): Promise<void>

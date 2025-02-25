@@ -26,4 +26,7 @@ export class CollectionFilter {
 
   sort?: SortCollections;
   order?: SortOrder;
+
+  name?: string;
+  hasAssets?: boolean;
 }

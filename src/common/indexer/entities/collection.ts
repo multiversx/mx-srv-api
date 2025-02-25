@@ -13,4 +13,5 @@ export interface Collection {
   api_holderCount?: number;
   nft_scamInfoType?: string;
   nft_scamInfoDescription?: string;
+  api_assets?: any;
 }
