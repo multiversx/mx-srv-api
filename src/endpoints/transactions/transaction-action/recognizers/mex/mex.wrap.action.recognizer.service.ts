@@ -45,14 +45,24 @@ export class MexWrapActionRecognizerService {
     result.name = MexFunction.wrapEgld;
     result.description = `Wrap ${valueDenominated} EGLD`;
     result.arguments = {
-      token: {
-        type: EsdtType.FungibleESDT,
-        name: 'WrappedEGLD',
-        token: wegldId,
-        ticker: wegldId.split('-')[0],
-        decimals: 18,
-        value: metadata.value.toString(),
-      },
+      transfers: [
+        {
+          type: 'EGLD',
+          name: 'EGLD',
+          token: 'EGLD',
+          ticker: 'EGLD',
+          decimals: 18,
+          value: metadata.value.toString(),
+        },
+        {
+          type: EsdtType.FungibleESDT,
+          name: 'WrappedEGLD',
+          token: wegldId,
+          ticker: wegldId.split('-')[0],
+          decimals: 18,
+          value: metadata.value.toString(),
+        },
+      ],
       receiver: metadata.receiver,
     };
 
