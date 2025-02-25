@@ -35,6 +35,7 @@ import { JwtOrNativeAuthGuard } from '@multiversx/sdk-nestjs-auth';
 import { WebSocketPublisherModule } from './common/websockets/web-socket-publisher-module';
 import { IndexerService } from './common/indexer/indexer.service';
 import { NotWritableError } from './common/indexer/entities/not.writable.error';
+import { ResponseTimeCpuInterceptor } from './interceptors/response-time.cpu.interceptor';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrapper');
@@ -220,6 +221,8 @@ async function configurePublicApp(publicApp: NestExpressApplication, apiConfigSe
   globalInterceptors.push(new RequestCpuTimeInterceptor(metricsService));
   // @ts-ignore
   globalInterceptors.push(new LoggingInterceptor(metricsService));
+  //@ts-ignore
+  globalInterceptors.push(new ResponseTimeCpuInterceptor(metricsService, { shouldLog: true }));
 
   const getUseRequestCachingFlag = await settingsService.getUseRequestCachingFlag();
   const cacheDuration = apiConfigService.getCacheDuration();
